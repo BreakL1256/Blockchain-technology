@@ -89,21 +89,49 @@ void hashFunction(){
 // }
 
 void hashFunction3() {
-    string input;
+    string input, arrayOfInputs[4];
     
     // Take input from the user
-    cout << "Enter a string to hash: ";
+    cout << "String to hash: ";
     getline(std::cin, input);
 
-    unsigned long long hash = 0; // Initialize hash value
+    int partLength = input.length() / 4;  
+    int remainder = input.length() % 4;   
 
-    // Process each character in the input string
-    for (char c : input) {
-        hash ^= static_cast<unsigned char>(c); // XOR the hash with the ASCII value of the character
+    int currentPos = 0;
+
+    for(int i = 0; i<4; i++){
+        int currentPartLength = partLength + (i < remainder ? 1 : 0);
         
-        hash <<= 1; // Shift left to mix bits
+        arrayOfInputs[i] = input.substr(currentPos, currentPartLength);
+        
+        currentPos += currentPartLength;
     }
 
+    unsigned long long hash = 0, hashAlternative = 0; // Initialize hash value
+
+    // Process each character in the input string
+    for(int i = 0; i < 4; i++){
+        for (char c : arrayOfInputs[i]) {
+            hash ^= static_cast<unsigned char>(c); // XOR the hash with the ASCII value of the character
+            hashAlternative = hash;
+            hash <<= 2; // Shift left to mix bits
+            hash |= (1LL << 63);
+            hash >>= 10;
+            hash |= (1LL << 63);
+            hash ^= hashAlternative;
+            hash |= (1LL << 63);
+            hash >>=1;
+            hash |= (1LL << 63);
+        }
+        arrayOfInputs[i] = to_string(hash);
+        hash = 0;
+        hashAlternative = 0;
+    }
+
+    for(int i=0; i<4;i++){
+        cout << arrayOfInputs[i] << endl;
+    }
 }
 
 int main(){
