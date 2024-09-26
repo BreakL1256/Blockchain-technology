@@ -2,6 +2,7 @@
 #include <string>
 #include <bitset>
 #include <sstream>
+#include <fstream>
 #include <cstring>
 #include <cstdlib>  // For std::srand and std::rand
 #include <ctime>    // For std::time
@@ -10,7 +11,7 @@
 
 using namespace std;
 
-void hashFunction3() {
+string hashFunction3(string input) {
     string input, arrayOfInputs[4], hashedString;
     long long hashedNumberArray[4] = {0};
     
@@ -20,7 +21,7 @@ void hashFunction3() {
 
     // Take input from the user
     cout << "String to hash: ";
-    getline(std::cin, input);
+    //getline(std::cin, input);
 
     if(input.length() == 0) return;
 
@@ -62,25 +63,48 @@ void hashFunction3() {
         cout << arrayOfInputs[i] << endl; 
     }
 
+    ostringstream oss;
+
     cout << "Hash: ";
     for(int i=0; i<4;i++){
         istringstream iss(arrayOfInputs[i]);
         iss >> hashedNumberArray[i];
-        hash ^= hashedNumberArray[i]; // XOR with current hashed number
-        hash += (hashedNumberArray[i] * 31); // Example multiplication to mix bits
-        hash ^= (hash << 13);           // Shift and XOR for additional mixing
-        hash ^= (hash >> 7);            // More mixing
+        hash ^= hashedNumberArray[i]; 
+        hash += (hashedNumberArray[i] * 31); 
+        hash ^= (hash << 13);           
+        hash ^= (hash >> 7);           
         hash |= (1LL << 63);
-        cout << hex << hash;
+        oss << hex << hash;
        //cmbString += arrayOfInputs[i];
     }
-
+    return oss.str();
 }
 
 int main(){
-    hashFunction3();
-    // unsigned long long a = 13839561654909534266ULL, b = 16147665260029935651ULL;
-    // cout << hex << a << endl;
-    // cout << hex << b;
+    int inputType;
+    string choice1, choice2;
+    cout << "Choose input type (1 - CLI, 2 - file input):" << endl;
+    cin >> inputType;
+    switch(inputType){
+        case 1:
+            cout << "Input a value:" << endl;
+            cin >> choice1;
+            cout << "Hash: " << hashFunction3(choice1) << endl;
+            break;
+        case 2:
+            cout << "Input a file name: " << endl;
+            cin >> choice2;
+            ifstream inputFile(choice2);
+            if (!inputFile) {
+                std::cerr << "Error opening file!" << std::endl;
+                return 1; 
+            }
+            string input;
+            getline(inputFile, input);
+            hashFunction3(input);
+            inputFile.close();
+            break;
+    }
+
     return 0;
 }
