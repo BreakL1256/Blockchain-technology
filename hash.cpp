@@ -2,6 +2,9 @@
 #include <string>
 #include <bitset>
 #include <cstring>
+#include <cstdlib>  // For std::srand and std::rand
+#include <ctime>    // For std::time
+#include <cstdio>   // For std::fopen and std::fgets
 
 using namespace std;
 
@@ -35,30 +38,76 @@ void hashFunction(){
     //}
 }
 
-void hashFunction2(){
-    const char* filename = "input.txt";
-    FILE* file = fopen(filename, "r");
+// void hashFunction2(){
+//     const char* filename = "input.txt";
+//     FILE* file = fopen(filename, "r");
 
-    long long int nums[4] = {0};
-    const int bufferSize = 33;  // Buffer size
-    char buffer[bufferSize];
+//     long long int nums[4] = {0};
+//     const int bufferSize = 33;  // Buffer size
+//     char buffer[bufferSize];
 
-    if(file == nullptr){
-        cerr << "error opening file" << endl;
+//     if(file == nullptr){
+//         cerr << "error opening file" << endl;
+//     }
+
+//     std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+//     while(fgets(buffer, sizeof(buffer), file) != nullptr){
+//         // Remove the newline character if it's there
+//         buffer[strcspn(buffer, "\n")] = 0;
+
+//         // Check the length of the buffer
+//         if (strlen(buffer) < 32) {
+//             // Fill the buffer with random ASCII characters if it's less than 32
+//             for (size_t i = strlen(buffer); i < 32; ++i) {
+//                 // Generate a random ASCII character (32 to 126 for printable characters)
+//                 buffer[i] = static_cast<char>(std::rand() % (126 - 32 + 1) + 32);
+//             }
+//             buffer[32] = '\0';  // Null-terminate the string
+//         }
+
+//         //memcpy(nums, buffer, sizeof(nums)); 
+//         cout<< sizeof(buffer) << endl;
+//         for(int i=0; i<4; i++){
+//             nums[i] |= (1LL << 63);
+//         }
+//         //not operations
+//         for(int i=0; i<4; i++){
+//             nums[i] = ~nums[i];
+//         }
+        
+//         //xor with eachother
+//         for(int i=0; i<4; i++){
+//             nums[i] ^= (nums[i] >> 5);
+//         }
+//     }
+//     fclose(file);
+
+//     for(int i=0; i<4; i++){
+//         cout << nums[i] << endl;
+//     }
+// }
+
+void hashFunction3() {
+    string input;
+    
+    // Take input from the user
+    cout << "Enter a string to hash: ";
+    getline(std::cin, input);
+
+    unsigned long long hash = 0; // Initialize hash value
+
+    // Process each character in the input string
+    for (char c : input) {
+        hash ^= static_cast<unsigned char>(c); // XOR the hash with the ASCII value of the character
+        
+        hash <<= 1; // Shift left to mix bits
     }
 
-    while(fgets(buffer, sizeof(buffer), file)){
-        memcpy(nums, buffer, sizeof(nums));
-    }
-    fclose(file);
-
-    for(int i=0; i<4; i++){
-        cout << nums[i] << endl;
-    }
 }
 
 int main(){
-    hashFunction();
-    hashFunction2();
+    hashFunction3();
+
     return 0;
 }
