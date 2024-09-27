@@ -4,10 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <random>
-#include <cstring>
-#include <cstdlib> 
-#include <ctime>    
-#include <cstdio>   
+#include <chrono>
 #include <iomanip>
 
 using namespace std;
@@ -17,8 +14,8 @@ char generateRandomChar(mt19937 &rng, uniform_int_distribution<int> &dist) {
 }
 
 void symbolGenerator(){
-    size_t numCharacters = 2000;
-    string filename = "1SeparateSymbol.txt";
+    size_t numCharacters = 10;
+    string filename = "100000Pairs.txt";
 
     ofstream outFile(filename, std::ios::out);
     if (!outFile) {
@@ -28,12 +25,19 @@ void symbolGenerator(){
     std::random_device rd; 
     std::mt19937 rng(rd()); 
     std::uniform_int_distribution<int> dist(32, 126);
-
-    for (size_t i = 0; i < numCharacters; ++i) {
-        char randomChar = generateRandomChar(rng, dist);
-        outFile << randomChar;
+    for(size_t i=0; i<100000; i++){
+        if(i == 24999) numCharacters = 100;
+        if(i == 49999) numCharacters = 500;
+        if(i == 74999) numCharacters = 1000;
+        string randomString1, randomString2;
+        for (size_t j = 0; j < numCharacters; ++j) {
+            char randomChar1 = generateRandomChar(rng, dist);
+            char randomChar2 = generateRandomChar(rng, dist);
+            randomString1 += randomChar1;
+            randomString2 += randomChar2;
+        }
+        outFile << randomString1 << "   " << randomString2 << endl;
     }
-
     outFile.close();
 }
 
@@ -110,15 +114,16 @@ int main(){
     int inputType;
     string choice1, choice2;
     //symbolGenerator();
-    cout << "Choose input type (1 - CLI, 2 - file input):" << endl;
+    cout << "Choose input type (1 - CLI, 2 - file input, 3 - 4 punktas, 4 - Pair generator):" << endl;
     cin >> inputType;
     switch(inputType){
-        case 1:
+        case 1:{
             cout << "Input a value:" << endl;
             cin >> choice1;
             cout << "Hash: " << hashFunction3(choice1) << endl;
             break;
-        case 2:
+        }
+        case 2: {
             cout << "Input a file name: " << endl;
             cin >> choice2;
             ifstream inputFile(choice2);
@@ -126,11 +131,36 @@ int main(){
                 std::cerr << "Error opening file!" << std::endl;
                 return 1; 
             }
-            string input;
-            getline(inputFile, input);
+            int rowCount = 128;
+            string input, rows;
+            for(int i=0; i<rowCount; i++){
+                getline(inputFile, rows);
+                input += rows;
+            }
+            //cout << input;
+            auto start = std::chrono::high_resolution_clock::now();
             cout << "Hash: " << hashFunction3(input) << endl;
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed_time = end - start;
+            std::cout << "Elapsed time: " << elapsed_time.count() << " seconds" << std::endl;
             inputFile.close();
             break;
+        }
+        case 3: {
+            int sameStringsCounter;
+            string sample1, sample2, t, t1;
+            ifstream inputFile("100000Pairs.txt");
+            for(int i=0; i<50000; i++){
+                inputFile >> sample1 >> sample2;
+                if(hashFunction3(sample1) == hashFunction3(sample2)) sameStringsCounter++;
+            }
+            cout<< "Collision counter: " << sameStringsCounter << endl;
+            break;
+        }
+        case 4:{
+            symbolGenerator();
+            break;
+        }
     }
 
     return 0;
