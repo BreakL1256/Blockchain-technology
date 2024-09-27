@@ -12,7 +12,7 @@
 using namespace std;
 
 string hashFunction3(string input) {
-    string input, arrayOfInputs[4], hashedString;
+    string arrayOfInputs[4], hashedString;
     long long hashedNumberArray[4] = {0};
     
     for(int i = 0; i<4; i++){
@@ -20,10 +20,10 @@ string hashFunction3(string input) {
     }
 
     // Take input from the user
-    cout << "String to hash: ";
+    //cout << "String to hash: ";
     //getline(std::cin, input);
 
-    if(input.length() == 0) return;
+    if(input.length() == 0) return "";
 
     int partLength = input.length() / 4;  
     int remainder = input.length() % 4;   
@@ -59,13 +59,13 @@ string hashFunction3(string input) {
 
     swap(arrayOfInputs[0], arrayOfInputs[2]);
 
-    for(int i=0; i<4; i++){
-        cout << arrayOfInputs[i] << endl; 
-    }
+    // for(int i=0; i<4; i++){
+    //     cout << arrayOfInputs[i] << endl; 
+    // }
 
     ostringstream oss;
 
-    cout << "Hash: ";
+    //cout << "Hash: ";
     for(int i=0; i<4;i++){
         istringstream iss(arrayOfInputs[i]);
         iss >> hashedNumberArray[i];
@@ -101,7 +101,7 @@ int main(){
             }
             string input;
             getline(inputFile, input);
-            hashFunction3(input);
+            cout << "Hash: " << hashFunction3(input) << endl;
             inputFile.close();
             break;
     }
