@@ -208,21 +208,21 @@ int main(){
                     return 1; 
                 }
 
-                const int totalPairs = 50000; // Total pairs to process
+                const int totalPairs = 50000; 
 
                 for (int i = 0; i < totalPairs; i++) {
                     inputFile >> r >> r1;
 
-                    // Hash the input strings
+                    
                     string sample1 = hashFunction3(r);
                     string sample2 = hashFunction3(r1);
 
-                    // Reset counters for each pair
+                   
                     sameCharCounter = 0;
                     sameBitCounter = 0;
-                    string t, t1; // Binary representations
+                    string t, t1; 
 
-                    // Generate binary string for sample1 and count matching characters
+                    
                     for (size_t j = 0; j < sample1.length(); j++) {
                         bitset<8> charBits(sample1[j]); 
                         t += charBits.to_string(); 
@@ -231,40 +231,40 @@ int main(){
                         }
                     }
 
-                    // Calculate hex ratio
+                    
                     if (!sample1.empty()) {
                         hexRatio += static_cast<double>(sameCharCounter) / sample1.length(); 
                     }
 
-                    // Generate binary string for sample2 and count matching bits
+                   
                     for (size_t j = 0; j < sample2.length(); j++) {
                         bitset<8> charBits(sample2[j]); 
                         t1 += charBits.to_string(); 
                     }
 
-                    // Count matching bits
+                    
                     for (size_t j = 0; j < t1.length(); j++) {
                         if (j < t.length() && t[j] == t1[j]) {
                             sameBitCounter++;
                         }
                     }
 
-                    // Calculate bit ratio
+                    
                     if (!t.empty()) {
                         bitRatio += static_cast<double>(sameBitCounter) / t.length();
                     }
                 }
 
-                // Average the ratios
+                
                 hexRatio /= totalPairs;
                 bitRatio /= totalPairs;
 
-                // Display results
-                cout << fixed << setprecision(2); // For two decimal precision
+                
+                cout << fixed << setprecision(2); 
                 cout << "Hex ratio: " << 100 - hexRatio * 100 << "%" << endl;
                 cout << "Bit ratio: " << 100 - bitRatio * 100 << "%" << endl;
 
-                inputFile.close(); // Close the file
+                inputFile.close(); 
             break;
         }
         case 5:{
