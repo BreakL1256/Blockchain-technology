@@ -32,9 +32,11 @@ void symbolGenerator(){
         string randomString1, randomString2;
         for (size_t j = 0; j < numCharacters; ++j) {
             char randomChar1 = generateRandomChar(rng, dist);
-            char randomChar2 = generateRandomChar(rng, dist);
+            //char randomChar2 = generateRandomChar(rng, dist);
             randomString1 += randomChar1;
-            randomString2 += randomChar2;
+            if(j == numCharacters / 2){
+                randomString2 += '.';
+            } else randomString2 += randomChar1;
         }
         outFile << randomString1 << "   " << randomString2 << endl;
     }
@@ -114,7 +116,7 @@ int main(){
     int inputType;
     string choice1, choice2;
     //symbolGenerator();
-    cout << "Choose input type (1 - CLI, 2 - file input, 3 - 4 punktas, 4 - Pair generator):" << endl;
+    cout << "Choose input type (1 - CLI, 2 - file input, 3 - 4 punktas, 4 - 6 punktas, 5 - Pair generator):" << endl;
     cin >> inputType;
     switch(inputType){
         case 1:{
@@ -157,7 +159,38 @@ int main(){
             cout<< "Collision counter: " << sameStringsCounter << endl;
             break;
         }
-        case 4:{
+        case 4: {
+            int sameCharCounter, sameBitCounter;
+            double hexRatio, bitRatio;
+            string sample1, sample2, t, t1;
+            ifstream inputFile("100000Pairs.txt");
+            for(int i=0; i<50000; i++){
+
+                inputFile >> sample1 >> sample2;
+
+                    for (int i=0; i<sample1.length(); i++) {
+                        bitset<8> charBits(sample1[i]); 
+                        t += charBits.to_string(); 
+                        if(sample1[i] == sample2[i]) sameCharCounter++;
+                    }
+                    hexRatio += sameCharCounter/sample1.length(); 
+                    for (int i=0; i<sample2.length(); i++) {
+                        bitset<8> charBits(sample2[i]); 
+                        t1 += charBits.to_string(); 
+                    }
+
+                    for(int i=0; i<t1.length();i++){
+                        if(t[i] == t1[i]) sameBitCounter++;
+                    }
+                    
+                    bitRatio += sameBitCounter/t.length();
+                //if(hashFunction3(sample1) == hashFunction3(sample2)) sameStringsCounter++;
+            }
+            cout << "Hex ratio: " << hexRatio * 100 << endl;
+            cout << "Bit ratio: " << bitRatio * 100 << endl;
+            break;
+        }
+        case 5:{
             symbolGenerator();
             break;
         }
