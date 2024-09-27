@@ -3,13 +3,39 @@
 #include <bitset>
 #include <sstream>
 #include <fstream>
+#include <random>
 #include <cstring>
-#include <cstdlib>  // For std::srand and std::rand
-#include <ctime>    // For std::time
-#include <cstdio>   // For std::fopen and std::fgets
+#include <cstdlib> 
+#include <ctime>    
+#include <cstdio>   
 #include <iomanip>
 
 using namespace std;
+
+char generateRandomChar(mt19937 &rng, uniform_int_distribution<int> &dist) {
+    return static_cast<char>(dist(rng));
+}
+
+void symbolGenerator(){
+    size_t numCharacters = 2000;
+    string filename = "1SeparateSymbol.txt";
+
+    ofstream outFile(filename, std::ios::out);
+    if (!outFile) {
+        std::cerr << "Error: Could not open file " << filename << " for writing.\n";
+    }
+
+    std::random_device rd; 
+    std::mt19937 rng(rd()); 
+    std::uniform_int_distribution<int> dist(32, 126);
+
+    for (size_t i = 0; i < numCharacters; ++i) {
+        char randomChar = generateRandomChar(rng, dist);
+        outFile << randomChar;
+    }
+
+    outFile.close();
+}
 
 string hashFunction3(string input) {
     string arrayOfInputs[4], hashedString;
@@ -83,6 +109,7 @@ string hashFunction3(string input) {
 int main(){
     int inputType;
     string choice1, choice2;
+    //symbolGenerator();
     cout << "Choose input type (1 - CLI, 2 - file input):" << endl;
     cin >> inputType;
     switch(inputType){
