@@ -14,7 +14,7 @@ char generateRandomChar(mt19937 &rng, uniform_int_distribution<int> &dist) {
 }
 
 void symbolGenerator(){
-    size_t numCharacters = 10;
+    size_t numCharacters = 50;
     string filename = "100000Pairs.txt";
 
     ofstream outFile(filename, std::ios::out);
@@ -26,9 +26,9 @@ void symbolGenerator(){
     std::mt19937 rng(rd()); 
     std::uniform_int_distribution<int> dist(32, 126);
     for(size_t i=0; i<100000; i++){
-        if(i == 24999) numCharacters = 100;
-        if(i == 49999) numCharacters = 500;
-        if(i == 74999) numCharacters = 1000;
+        // if(i == 24999) numCharacters = 100;
+        // if(i == 49999) numCharacters = 500;
+        // if(i == 74999) numCharacters = 1000;
         string randomString1, randomString2;
         for (size_t j = 0; j < numCharacters; ++j) {
             char randomChar1 = generateRandomChar(rng, dist);
@@ -160,34 +160,111 @@ int main(){
             break;
         }
         case 4: {
-            int sameCharCounter, sameBitCounter;
-            double hexRatio, bitRatio;
-            string sample1, sample2, t, t1;
-            ifstream inputFile("100000Pairs.txt");
-            for(int i=0; i<50000; i++){
+            // int sameCharCounter = 0, sameBitCounter = 0, k = 0 ;
+            // double hexRatio = 0, bitRatio = 0;
+            // string sample1, sample2, t, t1, r, r1;
+            // ifstream inputFile("100000Pairs.txt");
+            // if (!inputFile) {
+            //     std::cerr << "Error opening file!" << std::endl;
+            //     return 1; 
+            // }
+            // for(int i=0; i<50000; i++){
+                
+            //     inputFile >> r >> r1;
+            //     sample1 = hashFunction3(r);
+            //     sample2 = hashFunction3(r1);
+            //         for (int j=0; j<sample1.length(); j++) {
+            //             bitset<8> charBits(sample1[j]); 
+            //             t += charBits.to_string(); 
+            //             if(sample1[j] == sample2[j]) sameCharCounter++;
+            //         }
+            //         hexRatio += sameCharCounter/sample1.length(); 
+            //         for (int j=0; j<sample2.length(); j++) {
+            //             bitset<8> charBits(sample2[j]); 
+            //             t1 += charBits.to_string(); 
+            //         }
 
-                inputFile >> sample1 >> sample2;
+            //         for(int j=0; j<t1.length();j++){
+            //             if(t[j] == t1[j]) sameBitCounter++;
+            //         }
+                    
+            //         bitRatio += sameBitCounter/t.length();
+            //         k += i;
+            //         sameBitCounter = 0;
+            //         sameCharCounter = 0;
+            //     //if(hashFunction3(sample1) == hashFunction3(sample2)) sameStringsCounter++;
+            // }
+            // cout << k << endl;
+            // cout << "Hex ratio: " << hexRatio * 100 << endl;
+            // cout << "Bit ratio: " << bitRatio * 100 << endl;
 
-                    for (int i=0; i<sample1.length(); i++) {
-                        bitset<8> charBits(sample1[i]); 
+                int sameCharCounter = 0, sameBitCounter = 0;
+                double hexRatio = 0.0, bitRatio = 0.0;
+                string r, r1;
+                ifstream inputFile("100000Pairs.txt");
+
+                if (!inputFile) {
+                    cerr << "Error opening file!" << endl;
+                    return 1; 
+                }
+
+                const int totalPairs = 50000; // Total pairs to process
+
+                for (int i = 0; i < totalPairs; i++) {
+                    inputFile >> r >> r1;
+
+                    // Hash the input strings
+                    string sample1 = hashFunction3(r);
+                    string sample2 = hashFunction3(r1);
+
+                    // Reset counters for each pair
+                    sameCharCounter = 0;
+                    sameBitCounter = 0;
+                    string t, t1; // Binary representations
+
+                    // Generate binary string for sample1 and count matching characters
+                    for (size_t j = 0; j < sample1.length(); j++) {
+                        bitset<8> charBits(sample1[j]); 
                         t += charBits.to_string(); 
-                        if(sample1[i] == sample2[i]) sameCharCounter++;
+                        if (j < sample2.length() && sample1[j] == sample2[j]) {
+                            sameCharCounter++;
+                        }
                     }
-                    hexRatio += sameCharCounter/sample1.length(); 
-                    for (int i=0; i<sample2.length(); i++) {
-                        bitset<8> charBits(sample2[i]); 
+
+                    // Calculate hex ratio
+                    if (!sample1.empty()) {
+                        hexRatio += static_cast<double>(sameCharCounter) / sample1.length(); 
+                    }
+
+                    // Generate binary string for sample2 and count matching bits
+                    for (size_t j = 0; j < sample2.length(); j++) {
+                        bitset<8> charBits(sample2[j]); 
                         t1 += charBits.to_string(); 
                     }
 
-                    for(int i=0; i<t1.length();i++){
-                        if(t[i] == t1[i]) sameBitCounter++;
+                    // Count matching bits
+                    for (size_t j = 0; j < t1.length(); j++) {
+                        if (j < t.length() && t[j] == t1[j]) {
+                            sameBitCounter++;
+                        }
                     }
-                    
-                    bitRatio += sameBitCounter/t.length();
-                //if(hashFunction3(sample1) == hashFunction3(sample2)) sameStringsCounter++;
-            }
-            cout << "Hex ratio: " << hexRatio * 100 << endl;
-            cout << "Bit ratio: " << bitRatio * 100 << endl;
+
+                    // Calculate bit ratio
+                    if (!t.empty()) {
+                        bitRatio += static_cast<double>(sameBitCounter) / t.length();
+                    }
+                }
+
+                // Average the ratios
+                hexRatio /= totalPairs;
+                bitRatio /= totalPairs;
+
+                // Display results
+                cout << fixed << setprecision(2); // For two decimal precision
+                cout << "Hex ratio: " << 100 - hexRatio * 100 << "%" << endl;
+                cout << "Bit ratio: " << 100 - bitRatio * 100 << "%" << endl;
+
+                inputFile.close(); // Close the file
             break;
         }
         case 5:{
