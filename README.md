@@ -31,7 +31,7 @@ Visi hash'ai vienodo ilgio (64 simbolių)
 ![Screenshot 2024-09-27 172924](https://github.com/user-attachments/assets/fb9eafe8-1887-4893-af5c-19607af8a5bf)
 
 ## 5 užduotis
-- koalizijos: 47
+- Koalizijos: 47
 
 ## 6 užduotis
 |Kintamųjų tipai|Nesutapimo indeksas (Vid.)|
