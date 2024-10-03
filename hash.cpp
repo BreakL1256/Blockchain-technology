@@ -43,6 +43,7 @@ void symbolGenerator(){
     outFile.close();
 }
 
+
 string hashFunction3(string input) {
     string arrayOfInputs[4], hashedString;
     long long hashedNumberArray[4] = {0};
@@ -74,15 +75,18 @@ string hashFunction3(string input) {
     } else arrayOfInputs[0] = input;
 
     unsigned long long hash = 0, hashAlternative = 0; 
+    int charNumber = 0;
 
     //Hashing the string
     for(int i = 0; i < 4; i++){
         for (char c : arrayOfInputs[i]) {
+            charNumber = c;
             hash ^= static_cast<unsigned char>(c); 
             hashAlternative = hash;
             hash <<= 15; 
             hash ^= hashAlternative;
             hash >>=1;
+            hash = hash * 3 + charNumber % 255;
         }
         arrayOfInputs[i] = to_string(hash);
         hash = 0;
@@ -97,7 +101,10 @@ string hashFunction3(string input) {
 
     ostringstream oss;
 
-    //cout << "Hash: ";
+    std::random_device rd; 
+    std::mt19937 rng(rd()); 
+    std::uniform_int_distribution<int> dist(0, 5);
+
     for(int i=0; i<4;i++){
         istringstream iss(arrayOfInputs[i]);
         iss >> hashedNumberArray[i];
@@ -268,7 +275,7 @@ int main(){
             break;
         }
         case 5:{
-            symbolGenerator();
+           symbolGenerator();
             break;
         }
     }
