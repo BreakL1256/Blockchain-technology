@@ -43,11 +43,12 @@ void symbolGenerator(){
     outFile.close();
 }
 
-
 string hashFunction3(string input) {
     string arrayOfInputs[4], hashedString;
     long long hashedNumberArray[4] = {0};
     
+    unsigned long long initialSeed = (input.length() * 17 + static_cast<int>(input[0])) % 104739;
+
     for(int i = 0; i<4; i++){
       arrayOfInputs[i] = "0xsetfh654.";
     }
@@ -74,7 +75,7 @@ string hashFunction3(string input) {
         }
     } else arrayOfInputs[0] = input;
 
-    unsigned long long hash = 0, hashAlternative = 0; 
+    unsigned long long hash = initialSeed, hashAlternative = 0; 
     int charNumber = 0;
 
     //Hashing the string
@@ -83,13 +84,14 @@ string hashFunction3(string input) {
             charNumber = c;
             hash ^= static_cast<unsigned char>(c); 
             hashAlternative = hash;
-            hash <<= 15; 
+            // hash = ((hash << 15) ^ (hashAlternative + 13 * charNumber)) % 1000000007;
+            hash <<= 15;
             hash ^= hashAlternative;
             hash >>=1;
             hash = hash * 3 + charNumber % 255;
         }
         arrayOfInputs[i] = to_string(hash);
-        hash = 0;
+        hash = initialSeed;
         hashAlternative = 0;
     }
 
@@ -101,10 +103,6 @@ string hashFunction3(string input) {
 
     ostringstream oss;
 
-    std::random_device rd; 
-    std::mt19937 rng(rd()); 
-    std::uniform_int_distribution<int> dist(0, 5);
-
     for(int i=0; i<4;i++){
         istringstream iss(arrayOfInputs[i]);
         iss >> hashedNumberArray[i];
@@ -112,7 +110,7 @@ string hashFunction3(string input) {
         hash += (hashedNumberArray[i] * 31); 
         hash ^= (hash << 13);           
         hash ^= (hash >> 7);           
-        hash |= (1LL << 63);
+        hash |= (1LL << 63);   
         oss << hex << hash;
        //cmbString += arrayOfInputs[i];
     }
