@@ -47,15 +47,11 @@ string hashFunction3(string input) {
     string arrayOfInputs[4], hashedString;
     long long hashedNumberArray[4] = {0};
     
-    unsigned long long initialSeed = (input.length() * 17 + static_cast<int>(input[0])) % 104739;
+    unsigned long long initialSeed = (input.length() * 17 + static_cast<int>(input[0]) + static_cast<int>(input[input.length()/2])) % 104739;
 
     for(int i = 0; i<4; i++){
       arrayOfInputs[i] = "0xsetfh654.";
     }
-
-    // Take input from the user
-    //cout << "String to hash: ";
-    //getline(std::cin, input);
 
     if(input.length() == 0) return "";
 
@@ -84,11 +80,10 @@ string hashFunction3(string input) {
             charNumber = c;
             hash ^= static_cast<unsigned char>(c); 
             hashAlternative = hash;
-            // hash = ((hash << 15) ^ (hashAlternative + 13 * charNumber)) % 1000000007;
             hash <<= 15;
             hash ^= hashAlternative;
             hash >>=1;
-            hash = hash * 3 + charNumber % 255;
+            hash = hash * 3 + charNumber * 1333748 % 29992394723;
         }
         arrayOfInputs[i] = to_string(hash);
         hash = initialSeed;
@@ -97,22 +92,19 @@ string hashFunction3(string input) {
 
     swap(arrayOfInputs[0], arrayOfInputs[2]);
 
-    // for(int i=0; i<4; i++){
-    //     cout << arrayOfInputs[i] << endl; 
-    // }
-
     ostringstream oss;
 
     for(int i=0; i<4;i++){
         istringstream iss(arrayOfInputs[i]);
         iss >> hashedNumberArray[i];
+        hashAlternative = hash;
         hash ^= hashedNumberArray[i]; 
         hash += (hashedNumberArray[i] * 31); 
+        //hash = ((hash << 15) ^ (hashAlternative * 31));
         hash ^= (hash << 13);           
-        hash ^= (hash >> 7);           
+        hash ^= (hash >> 2);           
         hash |= (1LL << 63);   
         oss << hex << hash;
-       //cmbString += arrayOfInputs[i];
     }
     return oss.str();
 }
@@ -120,7 +112,6 @@ string hashFunction3(string input) {
 int main(){
     int inputType;
     string choice1, choice2;
-    //symbolGenerator();
     cout << "Choose input type (1 - CLI, 2 - file input, 3 - 4 punktas, 4 - 6 punktas, 5 - Pair generator):" << endl;
     cin >> inputType;
     switch(inputType){
@@ -154,7 +145,7 @@ int main(){
             break;
         }
         case 3: {
-            int sameStringsCounter;
+            int sameStringsCounter = 0;
             string sample1, sample2, t, t1;
             ifstream inputFile("100000Pairs.txt");
             for(int i=0; i<50000; i++){
