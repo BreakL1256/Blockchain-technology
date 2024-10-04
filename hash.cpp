@@ -83,7 +83,7 @@ string hashFunction3(string input) {
             hash <<= 15;
             hash ^= hashAlternative;
             hash >>=1;
-            hash = hash * 3 + charNumber * 1333748 % 29992394723;
+            hash = hash * 3 + charNumber * 127398238961 % 29992394723;
         }
         arrayOfInputs[i] = to_string(hash);
         hash = initialSeed;
