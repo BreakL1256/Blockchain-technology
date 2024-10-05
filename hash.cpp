@@ -26,14 +26,15 @@ void symbolGenerator(){
     std::mt19937 rng(rd()); 
     std::uniform_int_distribution<int> dist(32, 126);
     for(size_t i=0; i<100000; i++){
-        // if(i == 24999) numCharacters = 100;
-        // if(i == 49999) numCharacters = 500;
-        // if(i == 74999) numCharacters = 1000;
+    //    if(i == 24999) numCharacters = 100;
+    //    if(i == 49999) numCharacters = 500;
+    //    if(i == 74999) numCharacters = 1000;
         string randomString1, randomString2;
         for (size_t j = 0; j < numCharacters; ++j) {
             char randomChar1 = generateRandomChar(rng, dist);
-            //char randomChar2 = generateRandomChar(rng, dist);
+            char randomChar2 = generateRandomChar(rng, dist);
             randomString1 += randomChar1;
+            //randomString2 += randomChar2;
             if(j == numCharacters / 2){
                 randomString2 += '.';
             } else randomString2 += randomChar1;
@@ -47,7 +48,7 @@ string hashFunction3(string input) {
     string arrayOfInputs[4], hashedString;
     long long hashedNumberArray[4] = {0};
     
-    unsigned long long initialSeed = (input.length() * 17 + static_cast<int>(input[0]) + static_cast<int>(input[input.length()/2])) % 104739;
+    unsigned long long initialSeed = (input.length() * 17 + static_cast<int>(input[0]) * 29 + static_cast<int>(input[input.length() / 2]) * 59 + static_cast<int>(input[input.length() - 1]) * 97) % 104729;
 
     for(int i = 0; i<4; i++){
       arrayOfInputs[i] = "0xsetfh654.";
@@ -73,20 +74,25 @@ string hashFunction3(string input) {
 
     unsigned long long hash = initialSeed, hashAlternative = 0; 
     int charNumber = 0;
+    const unsigned long long primeMultiplier = 1099511628211;
+    const unsigned long long primeModulo = 29992394723;
 
     //Hashing the string
     for(int i = 0; i < 4; i++){
         for (char c : arrayOfInputs[i]) {
             charNumber = c;
-            hash ^= static_cast<unsigned char>(c); 
-            hashAlternative = hash;
-            hash <<= 15;
+            hash ^= static_cast<unsigned char>(c);            
+            hash *= primeMultiplier * charNumber * 31;
             hash ^= hashAlternative;
-            hash >>=1;
-            hash = hash * 3 + charNumber * 127398238961 % 29992394723;
+            hash <<= 13;
+            hash ^= (hash >> 5);
+            hash = (hash * primeMultiplier + charNumber * 751) % primeModulo;
+            //hash += (charNumber * 37);
+            hash ^= (hash << 11);
+            hashAlternative = hash;
         }
         arrayOfInputs[i] = to_string(hash);
-        hash = initialSeed;
+        //hash = initialSeed;
         hashAlternative = 0;
     }
 
@@ -101,7 +107,7 @@ string hashFunction3(string input) {
         hash ^= hashedNumberArray[i]; 
         hash += (hashedNumberArray[i] * 31); 
         //hash = ((hash << 15) ^ (hashAlternative * 31));
-        hash ^= (hash << 13);           
+        hash ^= (hash << 15);           
         hash ^= (hash >> 2);           
         hash |= (1LL << 63);   
         oss << hex << hash;
@@ -129,7 +135,7 @@ int main(){
                 std::cerr << "Error opening file!" << std::endl;
                 return 1; 
             }
-            int rowCount = 128;
+            int rowCount = 1;
             string input, rows;
             for(int i=0; i<rowCount; i++){
                 getline(inputFile, rows);
