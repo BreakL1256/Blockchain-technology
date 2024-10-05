@@ -87,12 +87,10 @@ string hashFunction3(string input) {
             hash <<= 13;
             hash ^= (hash >> 5);
             hash = (hash * primeMultiplier + charNumber * 751) % primeModulo;
-            //hash += (charNumber * 37);
             hash ^= (hash << 11);
             hashAlternative = hash;
         }
         arrayOfInputs[i] = to_string(hash);
-        //hash = initialSeed;
         hashAlternative = 0;
     }
 
@@ -106,7 +104,6 @@ string hashFunction3(string input) {
         hashAlternative = hash;
         hash ^= hashedNumberArray[i]; 
         hash += (hashedNumberArray[i] * 31); 
-        //hash = ((hash << 15) ^ (hashAlternative * 31));
         hash ^= (hash << 15);           
         hash ^= (hash >> 2);           
         hash |= (1LL << 63);   
@@ -162,44 +159,6 @@ int main(){
             break;
         }
         case 4: {
-            // int sameCharCounter = 0, sameBitCounter = 0, k = 0 ;
-            // double hexRatio = 0, bitRatio = 0;
-            // string sample1, sample2, t, t1, r, r1;
-            // ifstream inputFile("100000Pairs.txt");
-            // if (!inputFile) {
-            //     std::cerr << "Error opening file!" << std::endl;
-            //     return 1; 
-            // }
-            // for(int i=0; i<50000; i++){
-                
-            //     inputFile >> r >> r1;
-            //     sample1 = hashFunction3(r);
-            //     sample2 = hashFunction3(r1);
-            //         for (int j=0; j<sample1.length(); j++) {
-            //             bitset<8> charBits(sample1[j]); 
-            //             t += charBits.to_string(); 
-            //             if(sample1[j] == sample2[j]) sameCharCounter++;
-            //         }
-            //         hexRatio += sameCharCounter/sample1.length(); 
-            //         for (int j=0; j<sample2.length(); j++) {
-            //             bitset<8> charBits(sample2[j]); 
-            //             t1 += charBits.to_string(); 
-            //         }
-
-            //         for(int j=0; j<t1.length();j++){
-            //             if(t[j] == t1[j]) sameBitCounter++;
-            //         }
-                    
-            //         bitRatio += sameBitCounter/t.length();
-            //         k += i;
-            //         sameBitCounter = 0;
-            //         sameCharCounter = 0;
-            //     //if(hashFunction3(sample1) == hashFunction3(sample2)) sameStringsCounter++;
-            // }
-            // cout << k << endl;
-            // cout << "Hex ratio: " << hexRatio * 100 << endl;
-            // cout << "Bit ratio: " << bitRatio * 100 << endl;
-
                 int sameCharCounter = 0, sameBitCounter = 0;
                 double hexRatio = 0.0, bitRatio = 0.0;
                 string r, r1;
