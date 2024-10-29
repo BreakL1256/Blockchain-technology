@@ -11,7 +11,7 @@ using namespace std;
 #include <sstream>
 
 // Global constants
-const int DIFFICULTY_TARGET = 4; // Number of leading zeros required in the hash
+const int DIFFICULTY_TARGET = 2; // Number of leading zeros required in the hash
 
 // Data structures
 struct User {
@@ -87,6 +87,7 @@ std::string mineBlock(Block& block) {
     do {
         block.nonce = std::to_string(nonce);
         hash = hashFunction3(block_data + block.nonce);
+        //cout << hash << endl;
         nonce++;
     } while (hash.substr(0, DIFFICULTY_TARGET) != std::string(DIFFICULTY_TARGET, '0'));
 
@@ -113,31 +114,43 @@ void createNewBlock() {
     Block new_block;
     new_block.index = blockchain.size();
     new_block.previous_hash = blockchain.empty() ? "0" : blockchain.back().hash;
-    new_block.transactions.assign(pending_transactions.begin(), pending_transactions.begin() + 100);
+    new_block.transactions.assign(pending_transactions.begin(), pending_transactions.begin() + 1000);
     new_block.timestamp = time(nullptr);
 
     addBlockToChain(new_block);
 }
 
 int main() {
-    srand(time(0));
+    std::random_device rd;           
+    std::mt19937 rng(rd());           
+    std::uniform_int_distribution<int> dist(0, 1000);  
+    std::uniform_int_distribution<int> distAmnt(0, 500);  
+
     string name, pk;
     int balance;
+    vector<string> pkVec;
     ifstream file("output.txt", std::ios::in);
 
     while(!file.eof()){
         User p;
-        cin>>name>>pk>>balance;
+        file>>name>>pk>>balance;
+        pkVec.push_back(pk);
         p.name = name;
         p.public_key = pk;
         p.balance = balance;
         users[pk] = p;
+        cout << balance << endl;
     }
+
+    file.close();
+
     // Populate pending transactions (example)
     for (int i = 0; i < 1000; i++) {
-        std::string sender = "public_key_" + std::to_string(rand() % 10); // Replace with actual user keys
-        std::string receiver = "public_key_" + std::to_string(rand() % 10);
-        int amount = rand() % 100 + 1;
+        string copy1 = pkVec[dist(rng)], copy2 = pkVec[dist(rng)];
+        if(copy1 == copy2) continue;
+        std::string sender = "public_key_" + copy1; // Replace with actual user keys
+        std::string receiver = "public_key_" + copy2;
+        int amount = distAmnt(rng);
         
         Transaction tx = createTransaction(sender, receiver, amount);
         if (validateTransaction(tx)) {
