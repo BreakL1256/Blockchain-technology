@@ -52,7 +52,72 @@ struct Block {
     }
 };
 
+// Global variables
+std::unordered_map<std::string, User> users; // Map of public_key -> User
+std::vector<Transaction> pending_transactions;
+std::vector<Block> blockchain;
 
+// Helper functions
+std::string generateTransactionID() {
+    static int id = 0;
+    return "tx" + std::to_string(++id);
+}
+
+Transaction createTransaction(const std::string& sender, const std::string& receiver, int amount) {
+    Transaction tx;
+    tx.transaction_id = generateTransactionID();
+    tx.sender_public_key = sender;
+    tx.receiver_public_key = receiver;
+    tx.amount = amount;
+    tx.timestamp = time(nullptr);
+    return tx;
+}
+
+bool validateTransaction(const Transaction& tx) {
+    // Ensure sender has enough balance
+    return users[tx.sender_public_key].balance >= tx.amount;
+}
+
+// Mining function (Proof-of-Work)
+std::string mineBlock(Block& block) {
+    int nonce = 0;
+    std::string block_data = block.getBlockData();
+    std::string hash;
+    
+    do {
+        block.nonce = std::to_string(nonce);
+        hash = hashFunction3(block_data + block.nonce);
+        nonce++;
+    } while (hash.substr(0, DIFFICULTY_TARGET) != std::string(DIFFICULTY_TARGET, '0'));
+
+    return hash;
+}
+
+// Add block to blockchain
+void addBlockToChain(Block& block) {
+    block.hash = mineBlock(block);
+    blockchain.push_back(block);
+
+    // Process transactions
+    for (const auto& tx : block.transactions) {
+        users[tx.sender_public_key].balance -= tx.amount;
+        users[tx.receiver_public_key].balance += tx.amount;
+    }
+
+    // Clear processed transactions from the pending list
+    pending_transactions.erase(pending_transactions.begin(), pending_transactions.begin() + block.transactions.size());
+}
+
+// Function to create a new block
+void createNewBlock() {
+    Block new_block;
+    new_block.index = blockchain.size();
+    new_block.previous_hash = blockchain.empty() ? "0" : blockchain.back().hash;
+    new_block.transactions.assign(pending_transactions.begin(), pending_transactions.begin() + 100);
+    new_block.timestamp = time(nullptr);
+
+    addBlockToChain(new_block);
+}
 
 int main() {
     srand(time(0));
