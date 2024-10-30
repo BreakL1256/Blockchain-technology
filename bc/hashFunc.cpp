@@ -26,13 +26,22 @@ void userGenerator(){
 
     for (size_t i = 0; i < numUsers; i++) {
         std::string randomName;
+        char ch = ' ';
         for (size_t j = 0; j < nameCharacters; ++j) {
-            randomName += generateRandomChar(rng, charDist);
+            while(ch == ' '){
+                ch = generateRandomChar(rng, charDist);
+            }
+            randomName += ch;
+            ch = ' ';
         }
-
+    
         std::string randomPublicKey;
         for (size_t j = 0; j < PKCharacters; ++j) {
-            randomPublicKey += generateRandomChar(rng, charDist);
+            while(ch == ' '){
+                ch = generateRandomChar(rng, charDist);
+            }
+            randomPublicKey += ch;
+            ch = ' ';
         }
 
         int randomMoney = generateRandomMoney(rng, minMoney, maxMoney);

@@ -1,4 +1,5 @@
 #include "hashFunc.h"
+#include "sha256.h"
 
 using namespace std;
 
@@ -9,6 +10,7 @@ using namespace std;
 #include <ctime>
 #include <cstdlib>
 #include <sstream>
+//#include <openssl/sha.h>
 
 // Global constants
 const int DIFFICULTY_TARGET = 2; // Number of leading zeros required in the hash
@@ -87,7 +89,7 @@ std::string mineBlock(Block& block) {
     do {
         block.nonce = std::to_string(nonce);
         hash = hashFunction3(block_data + block.nonce);
-        //cout << hash << endl;
+        if(hash[0] == '0') cout << hash << endl;
         nonce++;
     } while (hash.substr(0, DIFFICULTY_TARGET) != std::string(DIFFICULTY_TARGET, '0'));
 
@@ -121,25 +123,29 @@ void createNewBlock() {
 }
 
 int main() {
+    // userGenerator();
     std::random_device rd;           
     std::mt19937 rng(rd());           
     std::uniform_int_distribution<int> dist(0, 1000);  
     std::uniform_int_distribution<int> distAmnt(0, 500);  
 
-    string name, pk;
+    string name, pk, line;
     int balance;
     vector<string> pkVec;
     ifstream file("output.txt", std::ios::in);
 
-    while(!file.eof()){
+    while(getline(file, line)){
         User p;
-        file>>name>>pk>>balance;
+
+        istringstream iss(line);
+
+        iss>>name>>pk>>balance;
         pkVec.push_back(pk);
         p.name = name;
         p.public_key = pk;
         p.balance = balance;
         users[pk] = p;
-        cout << balance << endl;
+        //cout << balance << endl;
     }
 
     file.close();
@@ -148,8 +154,8 @@ int main() {
     for (int i = 0; i < 1000; i++) {
         string copy1 = pkVec[dist(rng)], copy2 = pkVec[dist(rng)];
         if(copy1 == copy2) continue;
-        std::string sender = "public_key_" + copy1; // Replace with actual user keys
-        std::string receiver = "public_key_" + copy2;
+        std::string sender = copy1; // Replace with actual user keys
+        std::string receiver = copy2;
         int amount = distAmnt(rng);
         
         Transaction tx = createTransaction(sender, receiver, amount);

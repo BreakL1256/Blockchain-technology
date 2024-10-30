@@ -13,7 +13,7 @@ using namespace std;
 #define HASH_FUNC_H  
 
 char generateRandomChar(mt19937 &rng, uniform_int_distribution<int> &dist);
-int generateRandomMoney(std::mt19937& rng, int min, int max);
+int generateRandomMoney(mt19937& rng, int min, int max);
 void userGenerator();
 // void transactionGenerator();
 string hashFunction3(string input);
