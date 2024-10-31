@@ -21,20 +21,20 @@ const int transactionNumber = 100;
 
 
 struct User {
-    std::string name;
-    std::string public_key;
+    string name;
+    string public_key;
     int balance;
 };
 
 struct Transaction {
-    std::string transaction_id;
-    std::string sender_public_key;
-    std::string receiver_public_key;
+    string transaction_id;
+    string sender_public_key;
+    string receiver_public_key;
     int amount;
     time_t timestamp;
 
-    std::string getTransactionData() const {
-        std::ostringstream oss;
+    string getTransactionData() const {
+        ostringstream oss;
         oss << transaction_id << sender_public_key << receiver_public_key << amount << timestamp;
         return oss.str();
     }
@@ -42,14 +42,14 @@ struct Transaction {
 
 struct Block {
     int index;
-    std::string previous_hash;
-    std::vector<Transaction> transactions;
+    string previous_hash;
+    vector<Transaction> transactions;
     time_t timestamp;
-    std::string nonce;
-    std::string hash;
+    string nonce;
+    string hash;
 
-    std::string getBlockData() const {
-        std::ostringstream oss;
+    string getBlockData() const {
+        ostringstream oss;
         oss << index << previous_hash << timestamp << nonce;
         for (const auto& tx : transactions) {
             oss << tx.getTransactionData();
@@ -59,17 +59,18 @@ struct Block {
 };
 
 
-std::unordered_map<std::string, User> users; 
-std::vector<Transaction> pending_transactions;
-std::vector<Block> blockchain;
+unordered_map<string, User> users; 
+vector<Transaction> pending_transactions;
+vector<Transaction> all_transactions;
+vector<Block> blockchain;
 
 
-std::string generateTransactionID() {
+string generateTransactionID() {
     static int id = 0;
-    return "tx" + std::to_string(++id);
+    return "tx" + to_string(++id);
 }
 
-Transaction createTransaction(const std::string& sender, const std::string& receiver, int amount) {
+Transaction createTransaction(const string& sender, const string& receiver, int amount) {
     Transaction tx;
     tx.transaction_id = generateTransactionID();
     tx.sender_public_key = sender;
@@ -86,17 +87,17 @@ bool validateTransaction(const Transaction& tx) {
 }
 
 
-std::string mineBlock(Block& block) {
+string mineBlock(Block& block) {
     int nonce = 0;
-    std::string block_data = block.getBlockData();
-    std::string hash;
+    string block_data = block.getBlockData();
+    string hash;
     
     do {
-        block.nonce = std::to_string(nonce);
+        block.nonce = to_string(nonce);
         hash = shaHashFunction(block_data + block.nonce);
         // if(hash[0] == '0') cout << hash << endl;
         nonce++;
-    } while (hash.substr(0, DIFFICULTY_TARGET) != std::string(DIFFICULTY_TARGET, '0'));
+    } while (hash.substr(0, DIFFICULTY_TARGET) != string(DIFFICULTY_TARGET, '0'));
 
     //cout << "block hash: " << hash << endl;
 
@@ -114,7 +115,7 @@ void addBlockToChain(Block& block) {
         users[tx.receiver_public_key].balance += tx.amount;
     }
 
-    
+    all_transactions.assign(pending_transactions.begin(), pending_transactions.begin() + block.transactions.size());
     pending_transactions.erase(pending_transactions.begin(), pending_transactions.begin() + block.transactions.size());
 }
 
@@ -152,63 +153,122 @@ string shaHashFunction(const string& input){
     // Print the hash in hexadecimal
     ostringstream oss;
     for (int i = 0; i < SHA256_BLOCK_SIZE; i++) {
-        oss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+        oss << hex << setw(2) << setfill('0') << (int)hash[i];
     }
     return oss.str();
 }
 
 int main() {
-    std::random_device rd;           
-    std::mt19937 rng(rd());           
-    std::uniform_int_distribution<int> dist(0, 1000);  
-    std::uniform_int_distribution<int> distAmnt(0, 20);  
+    int choice;
+    while(true){
+        cout << "Choose action (1 - mine, 2 - print block of your choosing, 3 - print any transaction, 4 - exit)" << endl;
+        cin >> choice;
+        switch(choice){
+            case 1:{
+                random_device rd;           
+                mt19937 rng(rd());           
+                uniform_int_distribution<int> dist(0, 1000);  
+                uniform_int_distribution<int> distAmnt(0, 20);  
 
-    string name, pk, line;
-    int balance;
-    vector<string> pkVec;
-    ifstream file("output.txt", std::ios::in);
+                string name, pk, line;
+                int balance;
+                vector<string> pkVec;
+                ifstream file("output.txt", ios::in);
 
-    while(getline(file, line)){
-        User p;
+                while(getline(file, line)){
+                    User p;
 
-        istringstream iss(line);
+                    istringstream iss(line);
 
-        iss>>name>>pk>>balance;
-        pkVec.push_back(pk);
-        p.name = name;
-        p.public_key = pk;
-        p.balance = balance;
-        users[pk] = p;
-    }
+                    iss>>name>>pk>>balance;
+                    pkVec.push_back(pk);
+                    p.name = name;
+                    p.public_key = pk;
+                    p.balance = balance;
+                    users[pk] = p;
+                }
 
-    file.close();
+                file.close();
 
-    
-    for (int i = 0; i < 1000; i++) {
-        string copy1 = pkVec[dist(rng)], copy2 = pkVec[dist(rng)];
-        if(copy1 == copy2) continue;
-        std::string sender = copy1; 
-        std::string receiver = copy2;
-        int amount = distAmnt(rng);
-        
-        Transaction tx = createTransaction(sender, receiver, amount);
-        if (validateTransaction(tx)) {
-            pending_transactions.push_back(tx);
-        }
-    }
+                
+                for (int i = 0; i < 1000; i++) {
+                    string copy1 = pkVec[dist(rng)], copy2 = pkVec[dist(rng)];
+                    if(copy1 == copy2) continue;
+                    string sender = copy1; 
+                    string receiver = copy2;
+                    int amount = distAmnt(rng);
+                    
+                    Transaction tx = createTransaction(sender, receiver, amount);
+                    if (validateTransaction(tx)) {
+                        pending_transactions.push_back(tx);
+                    }
+                }
 
-   
-    while (!pending_transactions.empty()) {
-        createNewBlock();
-        cout << "Works" << endl;
-    }
+            
+                while (!pending_transactions.empty()) {
+                    createNewBlock();
+                    cout << "Works" << endl;
+                }
 
-   
-    for (const auto& block : blockchain) {
-        cout << "Block #" << block.index << ", Hash: " << block.hash << ", Previous Hash: " << block.previous_hash << "\n";
-        for (const auto& tx : block.transactions) {
-            std::cout << "  Transaction " << tx.transaction_id << ": " << tx.sender_public_key 
-                      << " -> " << tx.receiver_public_key << ", Amount: " << tx.amount << "\n";
+            
+                for (const auto& block : blockchain) {
+                    cout << "Block #" << block.index << ", Hash: " << block.hash << ", Previous Hash: " << block.previous_hash << "\n";
+                    for (const auto& tx : block.transactions) {
+                        cout << "  Transaction " << tx.transaction_id << ":\n" << tx.sender_public_key 
+                                << "\n -----> \n" << tx.receiver_public_key << "\nAmount: " << tx.amount << "\n";
+                    }
+                }
+                cout << "blockchain size: " << blockchain.size() << endl; 
+                break;
+            }
+            case 2:{
+                int BIndex;
+                cout << "Write the index of the block:\n";
+                try {
+                    cin >> BIndex;
+
+                    if (cin.fail()) {
+                        throw runtime_error("Invalid input. Please enter an integer.");
+                    }
+
+                } catch (const runtime_error& e) {
+                    cerr << e.what() << endl; 
+                    cin.clear(); 
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                }
+                if(BIndex < blockchain.size()){
+                    cout << "index: " << blockchain[BIndex].index << "\nprevious hash: " << blockchain[BIndex].previous_hash << "\ntime: " << blockchain[BIndex].timestamp << 
+                        "\nblock hash: " << blockchain[BIndex].hash << "\nnonce: " << blockchain[BIndex].nonce << endl;
+                }
+                else cout << "No such block";
+                break;
+            }
+            case 3:{
+                int index;
+                string id;
+                cout << "How would you like to find the transaction (1 - senders ID, 2 - receivers ID ):\n";
+                cin>>index;
+                cout << "\nInput the ID:\n";
+                cin >> id;
+                switch(index){
+                    case 1:{
+                        for(const auto& tran: all_transactions){
+                            if(tran.sender_public_key == id) cout << "\nreceiver's id: " << tran.receiver_public_key << "\namount: "<<  tran.amount << "\ntime: " << tran.timestamp << endl << endl;
+                        }
+                        break;
+                    }
+                    case 2:{
+                        for(const auto& tran: all_transactions){
+                            if(tran.receiver_public_key == id) cout << "\nsender's id: " << tran.sender_public_key << "\namount: "<<  tran.amount << "\ntime: " << tran.timestamp << endl << endl;
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+            case 4:{
+                return 0;
+            }
         }
     }
 
