@@ -10,12 +10,16 @@ using namespace std;
 #include <ctime>
 #include <cstdlib>
 #include <sstream>
+#include <cstring>
 //#include <openssl/sha.h>
 
-// Global constants
-const int DIFFICULTY_TARGET = 2; // Number of leading zeros required in the hash
 
-// Data structures
+string shaHashFunction(const string& input);
+
+const int DIFFICULTY_TARGET = 2; 
+const int transactionNumber = 100;
+
+
 struct User {
     std::string name;
     std::string public_key;
@@ -54,12 +58,12 @@ struct Block {
     }
 };
 
-// Global variables
-std::unordered_map<std::string, User> users; // Map of public_key -> User
+
+std::unordered_map<std::string, User> users; 
 std::vector<Transaction> pending_transactions;
 std::vector<Block> blockchain;
 
-// Helper functions
+
 std::string generateTransactionID() {
     static int id = 0;
     return "tx" + std::to_string(++id);
@@ -72,15 +76,16 @@ Transaction createTransaction(const std::string& sender, const std::string& rece
     tx.receiver_public_key = receiver;
     tx.amount = amount;
     tx.timestamp = time(nullptr);
+    //cout << "ID: "<< tx.transaction_id << "\nsender: "<< sender << "\nreceiver: " << receiver << "\namount: " << amount << "\ntimestamp: " << tx.timestamp << endl << endl;
     return tx;
 }
 
 bool validateTransaction(const Transaction& tx) {
-    // Ensure sender has enough balance
+    
     return users[tx.sender_public_key].balance >= tx.amount;
 }
 
-// Mining function (Proof-of-Work)
+
 std::string mineBlock(Block& block) {
     int nonce = 0;
     std::string block_data = block.getBlockData();
@@ -88,46 +93,75 @@ std::string mineBlock(Block& block) {
     
     do {
         block.nonce = std::to_string(nonce);
-        hash = hashFunction3(block_data + block.nonce);
-        if(hash[0] == '0') cout << hash << endl;
+        hash = shaHashFunction(block_data + block.nonce);
+        // if(hash[0] == '0') cout << hash << endl;
         nonce++;
     } while (hash.substr(0, DIFFICULTY_TARGET) != std::string(DIFFICULTY_TARGET, '0'));
+
+    //cout << "block hash: " << hash << endl;
 
     return hash;
 }
 
-// Add block to blockchain
+
 void addBlockToChain(Block& block) {
     block.hash = mineBlock(block);
     blockchain.push_back(block);
 
-    // Process transactions
+    
     for (const auto& tx : block.transactions) {
         users[tx.sender_public_key].balance -= tx.amount;
         users[tx.receiver_public_key].balance += tx.amount;
     }
 
-    // Clear processed transactions from the pending list
+    
     pending_transactions.erase(pending_transactions.begin(), pending_transactions.begin() + block.transactions.size());
 }
 
-// Function to create a new block
+
 void createNewBlock() {
     Block new_block;
     new_block.index = blockchain.size();
     new_block.previous_hash = blockchain.empty() ? "0" : blockchain.back().hash;
-    new_block.transactions.assign(pending_transactions.begin(), pending_transactions.begin() + 1000);
+    if(pending_transactions.size() > transactionNumber) new_block.transactions.assign(pending_transactions.begin(), pending_transactions.begin() + transactionNumber);
+    else new_block.transactions.assign(pending_transactions.begin(), pending_transactions.begin() + pending_transactions.size());
     new_block.timestamp = time(nullptr);
-
+    // cout << "Block created\n";
+    // cout << " index: " << new_block.index << "\nprevious hash: " << new_block.previous_hash << "\ntime: " << new_block.timestamp << endl;
     addBlockToChain(new_block);
 }
 
+string shaHashFunction(const string& input){
+    // Input data to hash
+    const char *data = input.c_str();
+    size_t data_len = strlen(data);
+    
+    // Prepare the hash output buffer
+    BYTE hash[SHA256_BLOCK_SIZE];
+    
+    // Initialize SHA-256 context
+    SHA256_CTX ctx;
+    sha256_init(&ctx);
+    
+    // Update the context with data
+    sha256_update(&ctx, (BYTE*)data, data_len);
+    
+    // Finalize the hash
+    sha256_final(&ctx, hash);
+    
+    // Print the hash in hexadecimal
+    ostringstream oss;
+    for (int i = 0; i < SHA256_BLOCK_SIZE; i++) {
+        oss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
+    }
+    return oss.str();
+}
+
 int main() {
-    // userGenerator();
     std::random_device rd;           
     std::mt19937 rng(rd());           
     std::uniform_int_distribution<int> dist(0, 1000);  
-    std::uniform_int_distribution<int> distAmnt(0, 500);  
+    std::uniform_int_distribution<int> distAmnt(0, 20);  
 
     string name, pk, line;
     int balance;
@@ -145,16 +179,15 @@ int main() {
         p.public_key = pk;
         p.balance = balance;
         users[pk] = p;
-        //cout << balance << endl;
     }
 
     file.close();
 
-    // Populate pending transactions (example)
+    
     for (int i = 0; i < 1000; i++) {
         string copy1 = pkVec[dist(rng)], copy2 = pkVec[dist(rng)];
         if(copy1 == copy2) continue;
-        std::string sender = copy1; // Replace with actual user keys
+        std::string sender = copy1; 
         std::string receiver = copy2;
         int amount = distAmnt(rng);
         
@@ -164,14 +197,15 @@ int main() {
         }
     }
 
-    // Mining loop to create new blocks with transactions
+   
     while (!pending_transactions.empty()) {
         createNewBlock();
+        cout << "Works" << endl;
     }
 
-    // Display blockchain info
+   
     for (const auto& block : blockchain) {
-        std::cout << "Block #" << block.index << ", Hash: " << block.hash << ", Previous Hash: " << block.previous_hash << "\n";
+        cout << "Block #" << block.index << ", Hash: " << block.hash << ", Previous Hash: " << block.previous_hash << "\n";
         for (const auto& tx : block.transactions) {
             std::cout << "  Transaction " << tx.transaction_id << ": " << tx.sender_public_key 
                       << " -> " << tx.receiver_public_key << ", Amount: " << tx.amount << "\n";
