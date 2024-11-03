@@ -13,9 +13,6 @@ using namespace std;
 #include <cstring>
 //#include <openssl/sha.h>
 
-
-string shaHashFunction(const string& input);
-
 const int DIFFICULTY_TARGET = 2; 
 const int transactionNumber = 100;
 
@@ -40,6 +37,9 @@ struct Transaction {
     }
 };
 
+string shaHashFunction(const string& input);
+string createMerkleRoot(const vector<Transaction>& transactions);
+
 struct Block {
     int index;
     string previous_hash;
@@ -50,10 +50,9 @@ struct Block {
 
     string getBlockData() const {
         ostringstream oss;
-        oss << index << previous_hash << timestamp << nonce;
-        for (const auto& tx : transactions) {
-            oss << tx.getTransactionData();
-        }
+        string transactionHash = createMerkleRoot(transactions);
+        oss << index << previous_hash << timestamp << nonce << transactionHash;
+
         return oss.str();
     }
 };
@@ -158,25 +157,31 @@ string shaHashFunction(const string& input){
     return oss.str();
 }
 
-string createMerkleRoot(vector<string> &transactions) {
+string createMerkleRoot(const vector<Transaction>& transactions){
     if (transactions.empty()) return "";
 
-    
-    while (transactions.size() > 1) {
-       
-        if (transactions.size() % 2 != 0) {
-            transactions.push_back(transactions.back());
-        }
+    vector<string> tempTransactions;
 
-        vector<string> newLevel;
-        for (size_t i = 0; i < transactions.size(); i += 2) {
-            string combinedHash = shaHashFunction(transactions[i] + transactions[i + 1]);
-            newLevel.push_back(combinedHash);
-        }
-        transactions = newLevel;
+    for(const auto& tr: transactions){
+        tempTransactions.push_back(shaHashFunction(tr.getTransactionData()));
     }
 
-    return transactions[0];
+
+    while (tempTransactions.size() > 1) {
+       
+        if (tempTransactions.size() % 2 != 0) {
+            tempTransactions.push_back(tempTransactions.back());
+        }
+
+        vector<string> newLvl;
+        for (size_t i = 0; i < tempTransactions.size(); i += 2) {
+            string combinedHash = shaHashFunction(tempTransactions[i] + tempTransactions[i + 1]);
+            newLvl.push_back(combinedHash);
+        }
+        tempTransactions = newLvl;
+    }
+
+    return tempTransactions[0];
 }
 
 int main() {
