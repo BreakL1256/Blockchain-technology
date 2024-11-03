@@ -158,6 +158,27 @@ string shaHashFunction(const string& input){
     return oss.str();
 }
 
+string createMerkleRoot(vector<string> &transactions) {
+    if (transactions.empty()) return "";
+
+    
+    while (transactions.size() > 1) {
+       
+        if (transactions.size() % 2 != 0) {
+            transactions.push_back(transactions.back());
+        }
+
+        vector<string> newLevel;
+        for (size_t i = 0; i < transactions.size(); i += 2) {
+            string combinedHash = shaHashFunction(transactions[i] + transactions[i + 1]);
+            newLevel.push_back(combinedHash);
+        }
+        transactions = newLevel;
+    }
+
+    return transactions[0];
+}
+
 int main() {
     int choice;
     while(true){
