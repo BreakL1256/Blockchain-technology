@@ -11,7 +11,7 @@ g++ -o blockchain blockchain.cpp hashFunc.cpp sha256.c
 ```
 # Blockchain (V0.2)
 ## Aprašas
-Realizuota pažangesnė blokų grandinės versija, naudojanti Merkle tree ir neoficialią sha256 maišos funkciją. Pateikiamos 4 funkcijos: kasyba, iškastų blokų paieška, transakcijų paieška, "decentralizuotų" blokų kasimo imitacija (kasami 5 blokai vienu metu).
+Realizuota pažangesnė blokų grandinės versija, tikrinanti naudotojų pinigų balansus, transakcijos maišos reikšmes, naudojanti Merkle tree ir neoficialią sha256 maišos funkciją. Pateikiamos 4 funkcijos: kasyba, iškastų blokų paieška, transakcijų paieška, "decentralizuotų" blokų kasimo imitacija (kasami 5 blokai vienu metu).
 
 ## Naudojimas
 1. Parsisiųsti bc aplanką
