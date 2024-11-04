@@ -32,7 +32,7 @@ struct Transaction {
 
     string getTransactionData() const {
         ostringstream oss;
-        oss << transaction_id << sender_public_key << receiver_public_key << amount << timestamp;
+        oss << sender_public_key << receiver_public_key << amount << timestamp;
         return oss.str();
     }
 };
@@ -64,24 +64,22 @@ vector<Transaction> all_transactions;
 vector<Block> blockchain;
 
 
-string generateTransactionID() {
-    static int id = 0;
-    return "tx" + to_string(++id);
+string generateTransactionID(const Transaction& tx) {
+    return shaHashFunction(tx.getTransactionData());
 }
 
 Transaction createTransaction(const string& sender, const string& receiver, int amount) {
     Transaction tx;
-    tx.transaction_id = generateTransactionID();
     tx.sender_public_key = sender;
     tx.receiver_public_key = receiver;
     tx.amount = amount;
     tx.timestamp = time(nullptr);
+    tx.transaction_id = generateTransactionID(tx);
     //cout << "ID: "<< tx.transaction_id << "\nsender: "<< sender << "\nreceiver: " << receiver << "\namount: " << amount << "\ntimestamp: " << tx.timestamp << endl << endl;
     return tx;
 }
 
 bool validateTransaction(const Transaction& tx) {
-    
     return users[tx.sender_public_key].balance >= tx.amount;
 }
 
@@ -163,7 +161,9 @@ string createMerkleRoot(const vector<Transaction>& transactions){
     vector<string> tempTransactions;
 
     for(const auto& tr: transactions){
-        tempTransactions.push_back(shaHashFunction(tr.getTransactionData()));
+        if(tr.transaction_id == generateTransactionID(tr)){
+            tempTransactions.push_back(tr.transaction_id);
+        }else continue;
     }
 
 
@@ -272,23 +272,32 @@ int main() {
             case 3:{
                 int index;
                 string id;
-                cout << "How would you like to find the transaction (1 - senders ID, 2 - receivers ID ):\n";
+                cout << "How would you like to find the transaction (1 - senders ID, 2 - receivers ID, 3 - transaction ID):\n";
                 cin>>index;
                 cout << "\nInput the ID:\n";
                 cin >> id;
                 switch(index){
                     case 1:{
                         for(const auto& tran: all_transactions){
-                            if(tran.sender_public_key == id) cout << "\nreceiver's id: " << tran.receiver_public_key << "\namount: "<<  tran.amount << "\ntime: " << tran.timestamp << endl << endl;
+                            if(tran.sender_public_key == id) cout << "\ntransaction: " << tran.transaction_id <<"\nreceiver's id: " << tran.receiver_public_key << "\namount: "<<  tran.amount << "\ntime: " << tran.timestamp << endl << endl;
                         }
                         break;
                     }
                     case 2:{
                         for(const auto& tran: all_transactions){
-                            if(tran.receiver_public_key == id) cout << "\nsender's id: " << tran.sender_public_key << "\namount: "<<  tran.amount << "\ntime: " << tran.timestamp << endl << endl;
+                            if(tran.receiver_public_key == id) cout << "\ntransaction: " << tran.transaction_id << "\nsender's id: " << tran.sender_public_key << "\namount: "<<  tran.amount << "\ntime: " << tran.timestamp << endl << endl;
                         }
                         break;
                     }
+                    case 3:{
+                        for(const auto& tran: all_transactions){
+                            if(tran.transaction_id == id) cout << "\nsender's id: " << tran.sender_public_key << "\namount: "<<  tran.amount << "\ntime: " << tran.timestamp << endl << endl;
+                        }
+                        break;
+                    }
+                    default:
+                        cout << "\nSuch ID doesn't exist\n";
+                        break;
                 }
                 break;
             }
