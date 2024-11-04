@@ -116,6 +116,27 @@ void addBlockToChain(Block& block) {
     pending_transactions.erase(pending_transactions.begin(), pending_transactions.begin() + block.transactions.size());
 }
 
+//For v0.2
+void addBlockToChain2(vector<Block> blocks, int targetNonce){
+    int count = 0;
+    for(auto block: blocks){
+        count++;
+        block.hash = mineBlock(block);
+        cout << "\nBlock #"<< count <<" Nonce: " << block.nonce;
+        if(stoi(block.nonce) >= targetNonce) continue;
+        else{
+            blockchain.push_back(block);
+
+            for (const auto& tx : block.transactions) {
+                users[tx.sender_public_key].balance -= tx.amount;
+                users[tx.receiver_public_key].balance += tx.amount;
+            }
+
+            all_transactions.assign(pending_transactions.begin(), pending_transactions.begin() + block.transactions.size());
+            return;
+        }
+    }
+}
 
 void createNewBlock() {
     Block new_block;
@@ -127,6 +148,27 @@ void createNewBlock() {
     // cout << "Block created\n";
     // cout << " index: " << new_block.index << "\nprevious hash: " << new_block.previous_hash << "\ntime: " << new_block.timestamp << endl;
     addBlockToChain(new_block);
+}
+
+// For v0.2
+vector<Block> createNewBlocks(int blockCount) {
+    random_device rd;           
+    mt19937 rng(rd());           
+    uniform_int_distribution<int> Bdist(0, 900); 
+
+    vector<Block> blocks;
+
+    for(int i=0; i<blockCount; i++){
+        Block new_block;
+        new_block.index = blockchain.size();
+        new_block.previous_hash = blockchain.empty() ? "0" : blockchain.back().hash;
+        new_block.transactions.assign(pending_transactions.begin() + Bdist(rng), pending_transactions.begin() + transactionNumber);
+        new_block.timestamp = time(nullptr);
+        blocks.push_back(new_block);
+    }
+    // cout << "Block created\n";
+    // cout << " index: " << new_block.index << "\nprevious hash: " << new_block.previous_hash << "\ntime: " << new_block.timestamp << endl;
+    return blocks;
 }
 
 string shaHashFunction(const string& input){
@@ -187,7 +229,7 @@ string createMerkleRoot(const vector<Transaction>& transactions){
 int main() {
     int choice;
     while(true){
-        cout << "Choose action (1 - mine, 2 - print block of your choosing, 3 - print any transaction, 4 - exit)" << endl;
+        cout << "Choose action (1 - mine, 2 - print block of your choosing, 3 - print any transaction, 4 - 5 block mining, 5 - exit)" << endl;
         cin >> choice;
         switch(choice){
             case 1:{
@@ -233,7 +275,6 @@ int main() {
             
                 while (!pending_transactions.empty()) {
                     createNewBlock();
-                    cout << "Works" << endl;
                 }
 
             
@@ -291,7 +332,7 @@ int main() {
                     }
                     case 3:{
                         for(const auto& tran: all_transactions){
-                            if(tran.transaction_id == id) cout << "\nsender's id: " << tran.sender_public_key << "\namount: "<<  tran.amount << "\ntime: " << tran.timestamp << endl << endl;
+                            if(tran.transaction_id == id) cout << "\nsender's id: " << tran.sender_public_key <<"\nreceiver's id: " << tran.receiver_public_key << "\namount: "<<  tran.amount << "\ntime: " << tran.timestamp << endl << endl;
                         }
                         break;
                     }
@@ -302,6 +343,56 @@ int main() {
                 break;
             }
             case 4:{
+                random_device rd;           
+                mt19937 rng(rd());           
+                uniform_int_distribution<int> dist(0, 1000);  
+                uniform_int_distribution<int> distAmnt(0, 20);  
+
+                string name, pk, line;
+                int balance;
+                vector<string> pkVec;
+                ifstream file("output.txt", ios::in);
+
+                while(getline(file, line)){
+                    User p;
+
+                    istringstream iss(line);
+
+                    iss>>name>>pk>>balance;
+                    pkVec.push_back(pk);
+                    p.name = name;
+                    p.public_key = pk;
+                    p.balance = balance;
+                    users[pk] = p;
+                }
+
+                file.close();
+
+                int numOfBlocks = 5, targetNonce = 100000;
+                vector<Block> blocks = createNewBlocks(numOfBlocks);
+                char character = '#';
+                int count = 1000;   
+
+                while(blockchain.empty()){
+                    addBlockToChain2(blocks, targetNonce);
+                    
+                    if(!blockchain.empty()) break;
+
+                    string output(count, character);
+
+                    cout << "\nBlock hasn't been mined!\n" << output;
+
+                    targetNonce *= 2;
+                }
+
+                for (const auto& block : blockchain) {
+                    cout << "\nBlock #" << block.index << "\nHash: " << block.hash << "\nPrevious Hash: " << block.previous_hash
+                    << "\nTimestamp: " << block.timestamp << "\nNonce: " << block.nonce << endl;
+                }
+                cout << "blockchain size: " << blockchain.size() << endl; 
+                break;
+            }
+            case 5:{
                 return 0;
             }
         }
