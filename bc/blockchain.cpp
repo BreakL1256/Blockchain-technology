@@ -368,6 +368,19 @@ int main() {
 
                 file.close();
 
+                for (int i = 0; i < 1000; i++) {
+                    string copy1 = pkVec[dist(rng)], copy2 = pkVec[dist(rng)];
+                    if(copy1 == copy2) continue;
+                    string sender = copy1; 
+                    string receiver = copy2;
+                    int amount = distAmnt(rng);
+                    
+                    Transaction tx = createTransaction(sender, receiver, amount);
+                    if (validateTransaction(tx)) {
+                        pending_transactions.push_back(tx);
+                    }
+                }
+
                 int numOfBlocks = 5, targetNonce = 100000;
                 vector<Block> blocks = createNewBlocks(numOfBlocks);
                 char character = '#';
@@ -375,7 +388,7 @@ int main() {
 
                 while(blockchain.empty()){
                     addBlockToChain2(blocks, targetNonce);
-                    
+
                     if(!blockchain.empty()) break;
 
                     string output(count, character);
