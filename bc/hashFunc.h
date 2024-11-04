@@ -60,10 +60,26 @@ struct Block {
     }
 };
 
+extern unordered_map<string, User> users; 
+extern vector<Transaction> pending_transactions;
+extern vector<Transaction> all_transactions;
+extern vector<Block> blockchain;
+extern vector<Block> blockchainCopy;
+
 char generateRandomChar(mt19937 &rng, uniform_int_distribution<int> &dist);
 int generateRandomMoney(mt19937& rng, int min, int max);
 void userGenerator();
 // void transactionGenerator();
 string hashFunction3(string input);
+string generateTransactionID(const Transaction& tx);
+Transaction createTransaction(const string& sender, const string& receiver, int amount);
+bool validateTransaction(const Transaction& tx);
+string mineBlock(Block& block);
+void addBlockToChain(Block& block);
+void addBlockToChain2(vector<Block> blocks, int targetNonce);
+void createNewBlock();
+vector<Block> createNewBlocks(int blockCount);
+string shaHashFunction(const string& input);
+string createMerkleRoot(const vector<Transaction>& transactions);
 
 #endif 
