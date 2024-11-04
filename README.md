@@ -4,7 +4,7 @@ Realizuota pati paprasčiausia blokų grandinės versija, naudojanti visų bloko
 
 ## Naudojimas
 1. Parsisiųsti bc aplanką
-2. Atsidarius aplanką bet kokioje integruotoje kūrimo aplinkoje į konsolę (CMD) suvesti šias komandas:
+2. Atsidaryti aplanką bet kokioje integruotoje kūrimo aplinkoje ir į konsolę (CMD) suvesti šias komandas:
 ```
 g++ -o blockchain blockchain.cpp hashFunc.cpp sha256.c
 ./blockchain
@@ -15,7 +15,7 @@ Realizuota pažangesnė blokų grandinės versija, tikrinanti naudotojų pinigų
 
 ## Naudojimas
 1. Parsisiųsti bc aplanką
-2. Atsidarius aplanką bet kokioje integruotoje kūrimo aplinkoje į konsolę (CMD) suvesti šias komandas:
+2. Atsidaryti aplanką bet kokioje integruotoje kūrimo aplinkoje ir į konsolę (CMD) suvesti šias komandas:
 ```
 g++ -o blockchain blockchain.cpp hashFunc.cpp sha256.c
 ./blockchain
