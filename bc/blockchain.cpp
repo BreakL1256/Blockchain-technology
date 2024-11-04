@@ -3,19 +3,8 @@
 
 using namespace std;
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include <ctime>
-#include <cstdlib>
-#include <sstream>
-#include <cstring>
-//#include <openssl/sha.h>
-
-const int DIFFICULTY_TARGET = 2; 
+const int DIFFICULTY_TARGET = 4; 
 const int transactionNumber = 100;
-
 
 struct User {
     string name;
@@ -62,6 +51,7 @@ unordered_map<string, User> users;
 vector<Transaction> pending_transactions;
 vector<Transaction> all_transactions;
 vector<Block> blockchain;
+vector<Block> blockchainCopy;
 
 
 string generateTransactionID(const Transaction& tx) {
@@ -106,7 +96,6 @@ void addBlockToChain(Block& block) {
     block.hash = mineBlock(block);
     blockchain.push_back(block);
 
-    
     for (const auto& tx : block.transactions) {
         users[tx.sender_public_key].balance -= tx.amount;
         users[tx.receiver_public_key].balance += tx.amount;
@@ -120,12 +109,12 @@ void addBlockToChain(Block& block) {
 void addBlockToChain2(vector<Block> blocks, int targetNonce){
     int count = 0;
     for(auto block: blocks){
-        count++;
         block.hash = mineBlock(block);
-        cout << "\nBlock #"<< count <<" Nonce: " << block.nonce;
+        cout << "\nBlock order for mining #"<< count <<" Nonce: " << block.nonce;
+        count++;
         if(stoi(block.nonce) >= targetNonce) continue;
         else{
-            blockchain.push_back(block);
+            blockchainCopy.push_back(block);
 
             for (const auto& tx : block.transactions) {
                 users[tx.sender_public_key].balance -= tx.amount;
@@ -145,8 +134,6 @@ void createNewBlock() {
     if(pending_transactions.size() > transactionNumber) new_block.transactions.assign(pending_transactions.begin(), pending_transactions.begin() + transactionNumber);
     else new_block.transactions.assign(pending_transactions.begin(), pending_transactions.begin() + pending_transactions.size());
     new_block.timestamp = time(nullptr);
-    // cout << "Block created\n";
-    // cout << " index: " << new_block.index << "\nprevious hash: " << new_block.previous_hash << "\ntime: " << new_block.timestamp << endl;
     addBlockToChain(new_block);
 }
 
@@ -159,15 +146,15 @@ vector<Block> createNewBlocks(int blockCount) {
     vector<Block> blocks;
 
     for(int i=0; i<blockCount; i++){
+        auto range = Bdist(rng);
         Block new_block;
         new_block.index = blockchain.size();
         new_block.previous_hash = blockchain.empty() ? "0" : blockchain.back().hash;
-        new_block.transactions.assign(pending_transactions.begin() + Bdist(rng), pending_transactions.begin() + transactionNumber);
+        new_block.transactions.assign(pending_transactions.begin() + range, pending_transactions.begin() + range + transactionNumber);
         new_block.timestamp = time(nullptr);
         blocks.push_back(new_block);
     }
-    // cout << "Block created\n";
-    // cout << " index: " << new_block.index << "\nprevious hash: " << new_block.previous_hash << "\ntime: " << new_block.timestamp << endl;
+
     return blocks;
 }
 
@@ -207,7 +194,6 @@ string createMerkleRoot(const vector<Transaction>& transactions){
             tempTransactions.push_back(tr.transaction_id);
         }else continue;
     }
-
 
     while (tempTransactions.size() > 1) {
        
@@ -381,28 +367,36 @@ int main() {
                     }
                 }
 
-                int numOfBlocks = 5, targetNonce = 100000;
+                int numOfBlocks = 5, targetNonce = 1000;
                 vector<Block> blocks = createNewBlocks(numOfBlocks);
-                char character = '#';
-                int count = 1000;   
+                char character = '#', character2 = '/';
+                int c = 100;   
 
-                while(blockchain.empty()){
+                while(blockchainCopy.empty()){
                     addBlockToChain2(blocks, targetNonce);
 
-                    if(!blockchain.empty()) break;
+                    if(!blockchainCopy.empty()) break;
 
-                    string output(count, character);
+                    string output(c, character);
 
                     cout << "\nBlock hasn't been mined!\n" << output;
 
                     targetNonce *= 2;
                 }
 
+                blockchain.insert(blockchain.end(), blockchainCopy.begin(), blockchainCopy.end());
+
+                blockchainCopy.clear();
+
+                string output(c, character2);
+
+                cout << endl <<output << "\nWHOLE BLOCKCHAIN:\n";
                 for (const auto& block : blockchain) {
                     cout << "\nBlock #" << block.index << "\nHash: " << block.hash << "\nPrevious Hash: " << block.previous_hash
                     << "\nTimestamp: " << block.timestamp << "\nNonce: " << block.nonce << endl;
                 }
                 cout << "blockchain size: " << blockchain.size() << endl; 
+                
                 break;
             }
             case 5:{
