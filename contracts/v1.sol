@@ -72,14 +72,18 @@ contract v1{
         uint256 amount = project.contributions[msg.sender];
         require(amount > 0, "No contributions to refund");
 
-        // Reset the investor's contribution
         project.contributions[msg.sender] = 0;
 
-        // Transfer the refund
         payable(msg.sender).transfer(amount);
 
         emit RefundIssued(projectId, msg.sender, amount);
     }
 
+    function getInvestors(uint256 projectId) external view returns (address[] memory) {
+        return projects[projectId].investors;
+    }
 
+    function getContribution(uint256 projectId, address investor) external view returns (uint256) {
+        return projects[projectId].contributions[investor];
+    }
 }
