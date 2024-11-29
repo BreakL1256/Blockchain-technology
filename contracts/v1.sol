@@ -3,13 +3,33 @@
 pragma solidity >=0.8.2 <0.9.0;
 
 contract v1{
-    uint age;
-
-    function setAge(uint x) public{
-        age = x;
+    
+    struct Project {
+        string name; 
+        uint256 fundingGoal; 
+        uint256 totalFunds; 
+        uint256 deadline;
+        address manager; 
+        bool propertyPurchased; 
+        mapping(address => uint256) contributions; 
+        address[] investors; 
     }
 
-    function getAge() public view returns (uint){
-        return age;
+    function createProject(string memory name, uint256 fundingGoal, uint256 durationInDays) external {
+     
     }
+
+    function investInProject(uint256 projectId) external payable {
+
+    }
+
+    function purchaseProperty(uint256 projectId) external {
+    
+    }
+
+    function issueRefund(uint256 projectId) external {
+    
+    }
+
+    
 }
