@@ -65,7 +65,20 @@ contract v1{
     }
 
     function issueRefund(uint256 projectId) external {
-    
+        Project storage project = projects[projectId];
+        require(block.timestamp > project.deadline, "Funding deadline has not passed yet");
+        require(project.totalFunds < project.fundingGoal, "Funding goal was reached; no refunds available");
+
+        uint256 amount = project.contributions[msg.sender];
+        require(amount > 0, "No contributions to refund");
+
+        // Reset the investor's contribution
+        project.contributions[msg.sender] = 0;
+
+        // Transfer the refund
+        payable(msg.sender).transfer(amount);
+
+        emit RefundIssued(projectId, msg.sender, amount);
     }
 
 
