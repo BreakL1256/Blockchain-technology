@@ -15,8 +15,20 @@ contract v1{
         address[] investors; 
     }
 
+    mapping(uint256 => Project) public projects;
+    uint256 public projectCount;
+
     function createProject(string memory name, uint256 fundingGoal, uint256 durationInDays) external {
-     
+        uint256 projectId = projectCount; 
+        projectCount++; 
+
+        Project storage newProject = projects[projectId];
+        newProject.name = name;
+        newProject.fundingGoal = fundingGoal;
+        newProject.totalFunds = 0;
+        newProject.deadline = block.timestamp + (durationInDays * 1 days);
+        newProject.manager = msg.sender;
+        newProject.propertyPurchased = false;
     }
 
     function investInProject(uint256 projectId) external payable {
@@ -31,5 +43,5 @@ contract v1{
     
     }
 
-    
+
 }
