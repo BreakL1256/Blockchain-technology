@@ -22,6 +22,7 @@ contract v1{
     event InvestmentMade(uint256 projectId, address investor, uint256 amount);
     event PropertyPurchased(uint256 projectId);
     event RefundIssued(uint256 projectId, address investor, uint256 amount);
+    event ProjectDeleted(uint256 projectId);
 
     function createProject(string memory name, uint256 fundingGoal, uint256 durationInDays) external {
         uint256 projectId = projectCount; 
@@ -66,9 +67,13 @@ contract v1{
 
     function issueRefund(uint256 projectId, bool forcefulCancelation) external {
         Project storage project = projects[projectId];
-        if (forcefulCancelation) require(msg.sender == project.manager, "Only the project manager can forcefully cancel");
-        else require(block.timestamp > project.deadline, "Funding deadline has not passed yet");
-    
+        
+        if (forcefulCancelation) {
+            require(msg.sender == project.manager, "Only the project manager can forcefully cancel");
+        } else {
+            require(block.timestamp > project.deadline, "Funding deadline has not passed yet");
+        }
+        
         require(project.totalFunds < project.fundingGoal, "Funding goal was reached; no refunds available");
 
         uint256 amount = project.contributions[msg.sender];
@@ -79,6 +84,10 @@ contract v1{
         payable(msg.sender).transfer(amount);
 
         emit RefundIssued(projectId, msg.sender, amount);
+
+        delete projects[projectId];
+
+        emit ProjectDeleted(projectId);
     }
 
     function getInvestors(uint256 projectId) external view returns (address[] memory) {
