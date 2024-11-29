@@ -54,7 +54,14 @@ contract v1{
     }
 
     function purchaseProperty(uint256 projectId) external {
-    
+        Project storage project = projects[projectId];
+        require(msg.sender == project.manager, "Only the project manager can purchase the property");
+        require(project.totalFunds >= project.fundingGoal, "Funding goal not yet reached");
+        require(!project.propertyPurchased, "Property has already been purchased");
+
+        project.propertyPurchased = true;
+
+        emit PropertyPurchased(projectId);
     }
 
     function issueRefund(uint256 projectId) external {
