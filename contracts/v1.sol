@@ -1,6 +1,6 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT
 
-pragma solidity >=0.8.2 <0.9.0;
+pragma solidity 0.8.19;
 
 contract v1{
     
@@ -8,7 +8,7 @@ contract v1{
         string name; 
         uint256 fundingGoal; 
         uint256 totalFunds; 
-        uint256 deadline;
+        uint256 deadline; 
         address manager; 
         bool propertyPurchased; 
         mapping(address => uint256) contributions; 
@@ -76,18 +76,20 @@ contract v1{
         
         require(project.totalFunds < project.fundingGoal, "Funding goal was reached; no refunds available");
 
-        uint256 amount = project.contributions[msg.sender];
-        require(amount > 0, "No contributions to refund");
+        address investor;
+        uint256 refundAmount;
+        for (uint256 i = 0; i < project.investors.length; i++) {
+            investor = project.investors[i];  
+            refundAmount = project.contributions[investor];  
 
-        project.contributions[msg.sender] = 0;
+            if (refundAmount > 0) {
+                project.contributions[investor] = 0;
 
-        payable(msg.sender).transfer(amount);
+                payable(investor).transfer(refundAmount);
 
-        emit RefundIssued(projectId, msg.sender, amount);
-
-        delete projects[projectId];
-
-        emit ProjectDeleted(projectId);
+                emit RefundIssued(projectId, investor, refundAmount);
+            }
+        }
     }
 
     function getInvestors(uint256 projectId) external view returns (address[] memory) {
