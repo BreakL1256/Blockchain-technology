@@ -376,6 +376,7 @@ const contractABI = [  // This can also be moved to a separate file, if needed
 
 let contract;
 let account;
+let investedProjects = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
     const ethereum = MMSDK.getProvider(); // Use the provider from MetaMask SDK
@@ -394,8 +395,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             account = accounts[0];
             document.getElementById('walletAddress').innerText = `Connected: ${account}`;
             await loadManagedProjects();
-            await loadInvestments(); 
             await populateProjectDropdown();
+            await loadOwnInvestments();
         } catch (error) {
             console.error('Error connecting wallet:', error);
         }
@@ -415,6 +416,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .createProject(name, web3.utils.toWei(fundingGoal, 'ether'), duration)
                 .send({ from: account });
             alert('Project created successfully!');
+            populateProjectDropdown();
             loadManagedProjects();
         } catch (error) {
             console.error('Error creating project:', error);
@@ -447,18 +449,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const loadOwnInvestments = async () => {
+      try {
+          const projectCount = await contract.methods.projectCount().call({ from: account });
+          for(let i=0; i<projectCount; i++){
+            const investors = await contract.methods.getInvestors(i).call({ from: account });
+            for(let j=0; j<investors.length; j++){
+              if(investors[j].toLowerCase() == account.toLowerCase()) {
+                const projectDetails = await contract.methods.getProjectById(i).call({ from: account });
+                investedProjects.push(projectDetails);
+              }
+            }
+          }
+      } catch (error) {
+          console.error('Error loading managed projects:', error);
+      }
+  };
+
     // Function to invest in a project
     const investInProject = async () => {
         const projectId = document.getElementById('investProjectId').value;
         const amount = document.getElementById('investAmount').value;
-
+        
         try {
             await contract.methods.investInProject(projectId).send({
                 from: account,
                 value: web3.utils.toWei(amount, 'ether'),
             });
             alert('Investment successful!');
-            await loadInvestments();
+            await loadInvestments(projectId);
         } catch (error) {
             console.error('Error investing in project:', error);
         }
@@ -468,22 +487,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('investBtn').addEventListener('click', investInProject);
 
     // Function to load investments
-    const loadInvestments = async () => {
+    const loadInvestments = async (projectId) => {
         try {
-            const allObjects = await contract.methods.getInvestments().call();
-
-            const projectIds = allObjects[0];
-            const contributions = allObjects[0];
-
-            if(projectIds && contributions){
-              const list = document.getElementById('investedProjects');
-              list.innerHTML = '';
-              projectIds.forEach((id, index) => {
-                  const item = document.createElement('li');
-                  item.innerText = `Project ID: ${id}, Contribution: ${web3.utils.fromWei(contributions[index], 'ether')} ETH`;
-                  list.appendChild(item);
-              });
-            }
+            const object = await contract.methods.getProjectById(projectId).call({ from: account });
+            console.log(object);
+            // if(object){
+            //   investedProjects.push(object);
+            //   const list = document.getElementById('investedProjects');
+            //   list.innerHTML = '';
+            //   investedProjects.forEach(project => {
+            //       const item = document.createElement('li');
+            //       item.innerText = `Project ID: ${id}, Contribution: ${web3.utils.fromWei(contributions[index], 'ether')} ETH`;
+            //       list.appendChild(item);
+            //   });
+            // }
         } catch (error) {
             console.error('Error loading investments:', error);
         }
@@ -501,7 +518,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const projectDetails = await contract.methods.projects(i).call({ from: account });
                 const option = document.createElement('option');
                 option.value = i;
-                option.innerText = projectDetails.name;
+                option.innerText = `funding goal: ${projectDetails.fundingGoal} || manager: ${projectDetails.manager}`;
                 dropdown.appendChild(option);
               }
             }
