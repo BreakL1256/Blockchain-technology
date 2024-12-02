@@ -393,9 +393,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
             account = accounts[0];
             document.getElementById('walletAddress').innerText = `Connected: ${account}`;
-            loadManagedProjects();
-            loadInvestments(); 
-            populateProjectDropdown();
+            await loadManagedProjects();
+            await loadInvestments(); 
+            await populateProjectDropdown();
         } catch (error) {
             console.error('Error connecting wallet:', error);
         }
@@ -427,10 +427,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Function to load managed projects
     const loadManagedProjects = async () => {
         try {
-            const { projectIds, projectNames } = await contract.methods.getManagedProjects().call({ from: account });
-            console.log(projectIds, projectNames);
+            const allObjects = await contract.methods.getManagedProjects().call({ from: account });
+
+            const projectIds = allObjects[0];
+            const projectNames = allObjects[1];
 
             if(projectIds && projectNames){
+              console.log(projectIds, projectNames);
               const list = document.getElementById('createdProjectsList');
               list.innerHTML = '';
               projectIds.forEach((id, index) => {
@@ -455,7 +458,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 value: web3.utils.toWei(amount, 'ether'),
             });
             alert('Investment successful!');
-            loadInvestments();
+            await loadInvestments();
         } catch (error) {
             console.error('Error investing in project:', error);
         }
@@ -467,7 +470,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Function to load investments
     const loadInvestments = async () => {
         try {
-            const { projectIds, contributions } = await contract.methods.getInvestments().call();
+            const allObjects = await contract.methods.getInvestments().call();
+
+            const projectIds = allObjects[0];
+            const contributions = allObjects[0];
+
             if(projectIds && contributions){
               const list = document.getElementById('investedProjectsList');
               list.innerHTML = '';
@@ -485,22 +492,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Populate the project selection dropdown for investments
     const populateProjectDropdown = async () => {
         try {
-            const { projectIds, projectNames } = await contract.methods.getManagedProjects().call();
-            if(projectIds && projectNames ){
+            const projectCount = await contract.methods.projectCount().call({ from: account });
+
+            if(projectCount){
               const dropdown = document.getElementById('investProjectId');
               dropdown.innerHTML = '';
-              projectIds.forEach((id, index) => {
-                  const option = document.createElement('option');
-                  option.value = id;
-                  option.innerText = projectNames[index];
-                  dropdown.appendChild(option);
-              });
-          }
+              for(let i=0; i<projectCount; i++){
+                const projectDetails = await contract.methods.projects(i).call({ from: account });
+                const option = document.createElement('option');
+                option.value = i;
+                option.innerText = projectDetails.name;
+                dropdown.appendChild(option);
+              }
+            }
         } catch (error) {
             console.error('Error populating project dropdown:', error);
         }
     };
 
+  //   const getProject = async (projectId) => {
+  //     try {
+  //         // Call the `getProjectById` function from the contract
+  //         const projectDetails = await contract.methods.getProjectById(projectId).call({ from: account });
+  
+  //         console.log("Project Details:");
+  //         console.log("Name:", projectDetails.name);
+  //         console.log("Funding Goal:", projectDetails.fundingGoal);
+  //         console.log("Total Funds:", projectDetails.totalFunds);
+  //         console.log("Deadline:", projectDetails.deadline);
+  //         console.log("Manager:", projectDetails.manager);
+  //         console.log("Property Purchased:", projectDetails.propertyPurchased);
+  //     } catch (error) {
+  //         console.error("Error fetching project details:", error);
+  //     }
+  // };
+
     // Call necessary functions on wallet connection
     connectWallet();
+
+    // getProject(0);
+
 });
