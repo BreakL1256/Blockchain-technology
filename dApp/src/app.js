@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     // Event listener for the connect wallet button
-    document.getElementById('connectWallet').addEventListener('click', connectWallet);
+    // document.getElementById('connectWallet').addEventListener('click', connectWallet);
 
     // Function to create a project
     const createProject = async () => {
@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             if(projectIds && projectNames){
               console.log(projectIds, projectNames);
-              const list = document.getElementById('createdProjectsList');
+              const list = document.getElementById('managedProjects');
               list.innerHTML = '';
               projectIds.forEach((id, index) => {
                   const item = document.createElement('li');
@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const contributions = allObjects[0];
 
             if(projectIds && contributions){
-              const list = document.getElementById('investedProjectsList');
+              const list = document.getElementById('investedProjects');
               list.innerHTML = '';
               projectIds.forEach((id, index) => {
                   const item = document.createElement('li');

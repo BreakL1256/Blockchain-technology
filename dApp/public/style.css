@@ -1,71 +1,161 @@
 /* General Layout */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-  
-  header {
-    background-color: #282c34;
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-  }
-  
-  header button {
-    background-color: #61dafb;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f9;
+  color: #333;
+}
+
+header {
+  background-color: #2C3E50;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+header button {
+  background-color: #3498db;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+header button:hover {
+  background-color: #2980b9;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 80px);
+  padding: 20px;
+  gap: 20px;
+}
+
+.managed-projects, .investments {
+  flex: 1;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.managed-projects {
+  border-right: 1px solid #ddd;
+}
+
+h2, h3 {
+  font-size: 24px;
+  color: #2c3e50;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+input, button {
+  margin-top: 8px;
+  padding: 12px;
+  width: 90%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  color: #333;
+}
+
+select{
+  margin-top: 8px;
+  padding: 12px;
+  width: 94%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  color: #333;
+}
+
+input, select {
+  background-color: #ecf0f1;
+}
+
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  padding: 10px;
+  background-color: #ecf0f1;
+  margin: 10px 0;
+  border-radius: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+ul li:hover {
+  background-color: #bdc3c7;
+}
+
+/* Styling for Forms */
+.form-container {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.projects-list {
+  margin-top: 20px;
+}
+
+#walletAddress{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Mobile View */
+@media (max-width: 768px) {
   .container {
-    display: flex;
-    flex-direction: row;
-    height: calc(100vh - 50px);
+      flex-direction: column;
   }
-  
+
   .managed-projects, .investments {
-    flex: 1;
-    padding: 20px;
-    border-right: 1px solid #ccc;
-    overflow-y: auto;
+      margin-bottom: 20px;
   }
-  
-  .investments {
-    border-right: none;
+
+  header {
+      padding: 15px;
+      flex-direction: column;
+      align-items: flex-start;
   }
-  
-  h2, h3 {
-    color: #333;
+
+  header button {
+      width: 100%;
+      margin-bottom: 10px;
   }
-  
-  label {
-    display: block;
-    margin-top: 10px;
-  }
-  
-  input, select, button {
-    margin-top: 5px;
-    padding: 10px;
-    width: 100%;
-  }
-  
-  button {
-    background-color: #333;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #444;
-  }
-  
-  ul {
-    list-style: none;
-    padding: 0;
-  }
+}
+
