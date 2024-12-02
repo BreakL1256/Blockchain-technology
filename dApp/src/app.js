@@ -374,11 +374,13 @@ const contractABI = [  // This can also be moved to a separate file, if needed
   }
 ];
 
+let contract;
+let account;
+
 document.addEventListener('DOMContentLoaded', async () => {
     const ethereum = MMSDK.getProvider(); // Use the provider from MetaMask SDK
     const web3 = new Web3(ethereum); // Set up Web3 with the provider from MetaMask
-    const contract = new web3.eth.Contract(contractABI, contractAddress);
-    let account;
+    contract = new web3.eth.Contract(contractABI, contractAddress);
 
     // Function to connect wallet
     const connectWallet = async () => {
@@ -392,7 +394,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             account = accounts[0];
             document.getElementById('walletAddress').innerText = `Connected: ${account}`;
             loadManagedProjects();
-            loadInvestments();
+            loadInvestments(); 
+            populateProjectDropdown();
         } catch (error) {
             console.error('Error connecting wallet:', error);
         }
@@ -425,13 +428,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadManagedProjects = async () => {
         try {
             const { projectIds, projectNames } = await contract.methods.getManagedProjects().call({ from: account });
-            const list = document.getElementById('managedProjects');
-            list.innerHTML = '';
-            projectIds.forEach((id, index) => {
-                const item = document.createElement('li');
-                item.innerText = `${projectNames[index]} (ID: ${id})`;
-                list.appendChild(item);
-            });
+            console.log(projectIds, projectNames);
+
+            if(projectIds && projectNames){
+              const list = document.getElementById('createdProjectsList');
+              list.innerHTML = '';
+              projectIds.forEach((id, index) => {
+                  const item = document.createElement('li');
+                  item.innerText = `${projectNames[index]} (ID: ${id})`;
+                  list.appendChild(item);
+              });
+          }
         } catch (error) {
             console.error('Error loading managed projects:', error);
         }
@@ -460,14 +467,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Function to load investments
     const loadInvestments = async () => {
         try {
-            const { projectIds, contributions } = await contract.methods.getInvestments().call({ from: account });
-            const list = document.getElementById('investedProjects');
-            list.innerHTML = '';
-            projectIds.forEach((id, index) => {
-                const item = document.createElement('li');
-                item.innerText = `Project ID: ${id}, Contribution: ${web3.utils.fromWei(contributions[index], 'ether')} ETH`;
-                list.appendChild(item);
-            });
+            const { projectIds, contributions } = await contract.methods.getInvestments().call();
+            if(projectIds && contributions){
+              const list = document.getElementById('investedProjectsList');
+              list.innerHTML = '';
+              projectIds.forEach((id, index) => {
+                  const item = document.createElement('li');
+                  item.innerText = `Project ID: ${id}, Contribution: ${web3.utils.fromWei(contributions[index], 'ether')} ETH`;
+                  list.appendChild(item);
+              });
+            }
         } catch (error) {
             console.error('Error loading investments:', error);
         }
@@ -476,15 +485,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Populate the project selection dropdown for investments
     const populateProjectDropdown = async () => {
         try {
-            const { projectIds, projectNames } = await contract.methods.getManagedProjects().call({ from: account });
-            const dropdown = document.getElementById('investProjectId');
-            dropdown.innerHTML = '';
-            projectIds.forEach((id, index) => {
-                const option = document.createElement('option');
-                option.value = id;
-                option.innerText = projectNames[index];
-                dropdown.appendChild(option);
-            });
+            const { projectIds, projectNames } = await contract.methods.getManagedProjects().call();
+            if(projectIds && projectNames ){
+              const dropdown = document.getElementById('investProjectId');
+              dropdown.innerHTML = '';
+              projectIds.forEach((id, index) => {
+                  const option = document.createElement('option');
+                  option.value = id;
+                  option.innerText = projectNames[index];
+                  dropdown.appendChild(option);
+              });
+          }
         } catch (error) {
             console.error('Error populating project dropdown:', error);
         }
