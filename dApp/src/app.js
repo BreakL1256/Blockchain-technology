@@ -542,15 +542,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
               card.innerHTML = `
                   <h4>${project.name}</h4>
-                  <p>Funding Goal: ${project.fundingGoal} ETH</p>
-                  <p>Collected Funds: ${project.totalFunds} ETH</p>
+                  <p>Funding Goal: ${web3.utils.fromWei(project.fundingGoal, 'ether')} ETH</p>
+                  <p>Collected Funds: ${web3.utils.fromWei(project.totalFunds, 'ether')} ETH</p>
                   <p>Manager: ${project.manager}</p>
                   <div class="progress-container">
                       <div class="progress-bar" style="width: ${
                         (project.totalFunds / project.fundingGoal) * 100
                       }%;"></div>
                   </div>
-                  <p class="progress-text">${project.totalFunds} / ${project.fundingGoal} ETH</p>
+                  <p class="progress-text">${web3.utils.fromWei(project.totalFunds, 'ether')} / ${web3.utils.fromWei(project.fundingGoal, 'ether')} ETH</p>
               `;
 
               container.appendChild(card);
