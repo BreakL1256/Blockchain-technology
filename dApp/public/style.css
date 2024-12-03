@@ -159,3 +159,51 @@ ul li:hover {
   }
 }
 
+/* Investment Cards */
+.investment-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.investment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.investment-card h4 {
+  font-size: 20px;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.investment-card p {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin: 5px 0;
+}
+
+/* Progress Bar */
+.progress-container {
+  background-color: #ecf0f1;
+  border-radius: 5px;
+  overflow: hidden;
+  height: 20px;
+  margin: 10px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #3498db;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 12px;
+  text-align: right;
+  color: #7f8c8d;
+  margin-top: 5px;
+}

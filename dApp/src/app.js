@@ -397,6 +397,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             await loadManagedProjects();
             await populateProjectDropdown();
             await loadOwnInvestments();
+            await loadInvestments();
         } catch (error) {
             console.error('Error connecting wallet:', error);
         }
@@ -451,6 +452,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadOwnInvestments = async () => {
       try {
+          investedProjects = [];
+
           const projectCount = await contract.methods.projectCount().call({ from: account });
           for(let i=0; i<projectCount; i++){
             const investors = await contract.methods.getInvestors(i).call({ from: account });
@@ -477,7 +480,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 value: web3.utils.toWei(amount, 'ether'),
             });
             alert('Investment successful!');
-            await loadInvestments(projectId);
+            await loadOwnInvestments();
+            await loadInvestments();
         } catch (error) {
             console.error('Error investing in project:', error);
         }
@@ -487,23 +491,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('investBtn').addEventListener('click', investInProject);
 
     // Function to load investments
-    const loadInvestments = async (projectId) => {
-        try {
-            const object = await contract.methods.getProjectById(projectId).call({ from: account });
-            console.log(object);
-            // if(object){
-            //   investedProjects.push(object);
-            //   const list = document.getElementById('investedProjects');
-            //   list.innerHTML = '';
-            //   investedProjects.forEach(project => {
-            //       const item = document.createElement('li');
-            //       item.innerText = `Project ID: ${id}, Contribution: ${web3.utils.fromWei(contributions[index], 'ether')} ETH`;
-            //       list.appendChild(item);
-            //   });
-            // }
-        } catch (error) {
-            console.error('Error loading investments:', error);
-        }
+    const loadInvestments = async () => {
+      try {
+          console.log(investedProjects);
+          const container = document.getElementById('investedProjects');
+          container.innerHTML = ''; // Clear previous investments
+
+          investedProjects.forEach((project) => {
+              // Create a card for each investment
+              const card = document.createElement('div');
+              card.classList.add('investment-card');
+
+              // Add project details
+              card.innerHTML = `
+                  <h4>${project.name}</h4>
+                  <p>Funding Goal: ${project.fundingGoal} ETH</p>
+                  <p>Collected Funds: ${project.totalFunds} ETH</p>
+                  <p>Manager: ${project.manager}</p>
+                  <div class="progress-container">
+                      <div class="progress-bar" style="width: ${
+                        (project.totalFunds / project.fundingGoal) * 100
+                      }%;"></div>
+                  </div>
+                  <p class="progress-text">${project.totalFunds} / ${project.fundingGoal} ETH</p>
+              `;
+
+              container.appendChild(card);
+          });
+      } catch (error) {
+          console.error('Error loading investments:', error);
+      }
     };
 
     // Populate the project selection dropdown for investments
