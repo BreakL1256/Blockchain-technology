@@ -1,5 +1,5 @@
 import Web3 from 'web3';
-import { MetaMaskSDK  } from '@metamask/sdk';  // Assuming you're using MetaMask SDK
+import { MetaMaskSDK  } from '@metamask/sdk'; 
 
 const MMSDK = new MetaMaskSDK({
   dappMetadata: {
@@ -11,7 +11,7 @@ const MMSDK = new MetaMaskSDK({
 
 // Get contract address from environment variables
 const contractAddress = "0xA4078ca2d41c02793181BFa4e706995f2723e607";
-const contractABI = [  // This can also be moved to a separate file, if needed
+const contractABI = [  
   {
     "anonymous": false,
     "inputs": [
@@ -379,8 +379,8 @@ let account;
 let investedProjects = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const ethereum = MMSDK.getProvider(); // Use the provider from MetaMask SDK
-    const web3 = new Web3(ethereum); // Set up Web3 with the provider from MetaMask
+    const ethereum = MMSDK.getProvider(); 
+    const web3 = new Web3(ethereum); 
     contract = new web3.eth.Contract(contractABI, contractAddress);
 
     // Function to connect wallet
@@ -429,27 +429,53 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Function to load managed projects
     const loadManagedProjects = async () => {
-        try {
-            const allObjects = await contract.methods.getManagedProjects().call({ from: account });
+      try {
+          const allObjects = await contract.methods.getManagedProjects().call({ from: account });
+          const projectIds = allObjects[0];
 
-            const projectIds = allObjects[0];
-            const projectNames = allObjects[1];
+          if (projectIds.length > 0) {
+              const container = document.getElementById('managedProjects');
+              container.innerHTML = ''; 
 
-            if(projectIds && projectNames){
-              console.log(projectIds, projectNames);
-              const list = document.getElementById('managedProjects');
-              list.innerHTML = '';
-              projectIds.forEach((id, index) => {
-                  const item = document.createElement('li');
-                  item.innerText = `${projectNames[index]} (ID: ${id})`;
-                  list.appendChild(item);
-              });
+              for (const id of projectIds) {
+                  const projectDetails = await contract.methods.getProjectById(id).call({ from: account });
+
+                  const progressPercent = Math.min(
+                      (projectDetails.totalFunds / projectDetails.fundingGoal) * 100,
+                      100
+                  );
+
+                  const card = document.createElement('div');
+                  card.classList.add('investment-card');
+
+                  card.innerHTML = `
+                      <div class="investment-header">
+                          <h4>${projectDetails.name}</h4>
+                          <p>ID: ${id}</p>
+                      </div>
+                      <div class="investment-details">
+                          <p><strong>Funding Goal:</strong> ${web3.utils.fromWei(projectDetails.fundingGoal, 'ether')} ETH</p>
+                          <p><strong>Total Funds:</strong> ${web3.utils.fromWei(projectDetails.totalFunds, 'ether')} ETH</p>
+                          <div class="investment-progress">
+                              <div class="investment-progress-bar" style="width: ${progressPercent}%;"></div>
+                          </div>
+                          <p class="progress-text">${progressPercent.toFixed(2)}% funded</p>
+                      </div>
+                  `;
+
+                  container.appendChild(card);
+              }
+          } else {
+              const container = document.getElementById('managedProjects');
+              container.innerHTML = '<p class="no-projects">No projects found.</p>';
           }
-        } catch (error) {
-            console.error('Error loading managed projects:', error);
-        }
+      } catch (error) {
+          console.error('Error loading managed projects:', error);
+      }
     };
 
+
+    //Function to load own investments in an array
     const loadOwnInvestments = async () => {
       try {
           investedProjects = [];
@@ -467,7 +493,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       } catch (error) {
           console.error('Error loading managed projects:', error);
       }
-  };
+    };
 
     // Function to invest in a project
     const investInProject = async () => {
@@ -475,10 +501,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         const amount = document.getElementById('investAmount').value;
         
         try {
+            const projectDetails = await contract.methods.getProjectById(projectId).call({ from: account });
+            
+            const amountInWei = web3.utils.toWei(amount, 'ether');
+   
+            const totalFunds = projectDetails.totalFunds; 
+            const fundingGoal = projectDetails.fundingGoal;
+            
+            if (Number(totalFunds) + Number(amountInWei) > Number(fundingGoal)) {
+              window.alert("Investment exceeds the funding goal. Please reduce the amount.");
+              return;
+            }
+
             await contract.methods.investInProject(projectId).send({
                 from: account,
-                value: web3.utils.toWei(amount, 'ether'),
+                value: amountInWei,
             });
+
             alert('Investment successful!');
             await loadOwnInvestments();
             await loadInvestments();
@@ -495,14 +534,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       try {
           console.log(investedProjects);
           const container = document.getElementById('investedProjects');
-          container.innerHTML = ''; // Clear previous investments
+          container.innerHTML = '';
 
           investedProjects.forEach((project) => {
-              // Create a card for each investment
               const card = document.createElement('div');
               card.classList.add('investment-card');
 
-              // Add project details
               card.innerHTML = `
                   <h4>${project.name}</h4>
                   <p>Funding Goal: ${project.fundingGoal} ETH</p>
@@ -546,7 +583,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   //   const getProject = async (projectId) => {
   //     try {
-  //         // Call the `getProjectById` function from the contract
   //         const projectDetails = await contract.methods.getProjectById(projectId).call({ from: account });
   
   //         console.log("Project Details:");
@@ -561,9 +597,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   //     }
   // };
 
-    // Call necessary functions on wallet connection
     connectWallet();
-
-    // getProject(0);
-
 });

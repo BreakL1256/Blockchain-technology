@@ -137,7 +137,6 @@ ul li:hover {
   align-items: center;
 }
 
-/* Mobile View */
 @media (max-width: 768px) {
   .container {
       flex-direction: column;
@@ -159,7 +158,6 @@ ul li:hover {
   }
 }
 
-/* Investment Cards */
 .investment-card {
   background-color: #ffffff;
   border-radius: 8px;
@@ -197,7 +195,7 @@ ul li:hover {
 
 .progress-bar {
   height: 100%;
-  background-color: #3498db;
+  background: linear-gradient(90deg, #68d391, #38a169);;
   transition: width 0.3s ease;
 }
 
@@ -206,4 +204,95 @@ ul li:hover {
   text-align: right;
   color: #7f8c8d;
   margin-top: 5px;
+}
+
+.investment-container {
+  margin: 20px auto;
+  max-width: 900px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f6f9fc, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Section title */
+.investment-container h3 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Investment card */
+.investment-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin: 15px 0;
+  padding: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.investment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.investment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.investment-header h4 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.investment-header p {
+  font-size: 0.9rem;
+  color: #718096;
+}
+
+.investment-details p {
+  font-size: 1rem;
+  color: #4a5568;
+  margin: 8px 0;
+}
+
+.investment-details strong {
+  color: #2d3748;
+}
+
+/* Progress bar */
+.investment-progress {
+  background: #edf2f7;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 10px;
+  margin: 10px 0;
+}
+
+.investment-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #68d391, #38a169);
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 0.9rem;
+  color: #4a5568;
+  text-align: right;
+}
+
+/* No projects message */
+.no-projects {
+  text-align: center;
+  color: #a0aec0;
+  font-size: 1.2rem;
+  margin-top: 20px;
 }

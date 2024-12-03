@@ -8,12 +8,10 @@
 </head>
 <body>
   <header>
-    <!-- <button id="connectWallet">Connect Wallet</button> -->
     <span id="walletAddress"></span>
   </header>
 
   <div class="container">
-    <!-- Left Section: Managed Projects -->
     <div class="managed-projects">
       <h2>Managed Projects</h2>
       <div id="createProjectForm">
@@ -26,13 +24,12 @@
         <input type="number" id="duration" placeholder="Enter duration">
         <button id="createProjectBtn">Create Project</button>
       </div>
-      <div id="managedProjectsList">
-        <h3>Your Projects</h3>
-        <ul id="managedProjects"></ul>
+      <div id="managedProjectsList" class="investment-container">
+          <h3>Your Projects</h3>
+          <div id="managedProjects"></div>
       </div>
     </div>
 
-    <!-- Right Section: Investments -->
     <div class="investments">
       <h2>Investments</h2>
       <div id="investForm">
